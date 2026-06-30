@@ -1,12 +1,42 @@
+<script lang="ts" setup>
+import SocialCard from '../Cards/SocialCard.vue'
+const socials = [
+    {
+        name:'Instagram',
+        url:'https://www.instagram.com/paulbyersphotography/',
+        icon:'/icons/instagram.svg'
+    },
+    {
+        name: 'X/Twitter',
+        url:'https://x.com/paulbyersphoto',
+        icon:'/icons/xTwitter.svg'
+    },
+    {
+        name: 'Flickr',
+        url:'https://www.flickr.com/photos/paulbyersphotography/',
+        icon: '/icons/flickr.svg'
+    }
+]
+</script>
+
 <template>
     <section class="socials" aria-label="Socials">
     <div class="socials-inner">
         <header class="section-header">
             <p class="section-eyebrow">Connect</p>
-            <h2 class="section-heading">Follow Me</h2>
+            <h2 class="section-heading">Connect with me</h2>
             <div class="section-divider"></div>
         </header>
+        <div class ="socials-grid">
+            <SocialCard
+                v-for="(social, index) in socials"
+                :key="index"
+                :name="social.name"
+                :url="social.url"
+                :icon="social.icon"
+            />
 
+        </div>
     </div>
     </section>
 </template>
@@ -41,9 +71,19 @@
     margin: 0;
 }
 .section-divider {
-    width: 3.5rem;
+  
     height: 0.125rem;
     background: #e8d9b5;
     margin: 1.5rem 0 0;
+}
+.socials-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.socials-grid > * {
+    flex: 0 0 200px;
 }
 </style>

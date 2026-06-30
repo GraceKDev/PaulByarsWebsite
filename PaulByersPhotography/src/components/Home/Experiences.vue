@@ -118,7 +118,6 @@ const experiences: ServiceCardInterface[] = [
     flex-wrap: wrap;
     justify-content: center;
     gap: 2rem;
-
     max-width: 1200px;
     margin: 0 auto;
 }
