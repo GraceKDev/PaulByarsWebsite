@@ -1,0 +1,28 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+   
+  font-family: var(--sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+@font-face {
+    font-family: "PermanentMarker";
+    src: url('fonts/PermanentMarker-Regular.ttf');
+}
+body {
+  margin: 0;
+  padding: 0;
+  background: #0b0a13;
+}
+
+#app {
+  width: 100%;
+}
