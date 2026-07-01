@@ -84,4 +84,9 @@ const references: ReferenceInterface[] = [
     background: rgba(255, 255, 255, 0.08);
     margin: 2.5rem 0 0;
 }
+.references-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+}
 </style>

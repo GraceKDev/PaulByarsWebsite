@@ -1,42 +1,54 @@
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
+
 const allPhotos = Object.keys(
   import.meta.glob('/public/ImagesHero/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}')
 ).map(p => p.replace('/public', ''))
 
-const photosA = allPhotos.slice(0, 10)
-const photosB = allPhotos.slice(10, 20)
-const photosC = allPhotos.slice(20, 30)
+const currentIndex = ref(0)
+let intervalId: ReturnType<typeof setInterval> | null = null
+
+function nextSlide() {
+  currentIndex.value = (currentIndex.value + 1) % allPhotos.length
+}
+
+onMounted(() => {
+  if (allPhotos.length > 0) {
+    intervalId = setInterval(nextSlide, 4000)
+  }
+})
+
+onUnmounted(() => {
+  if (intervalId) clearInterval(intervalId)
+})
 </script>
 
 <template>
   <section class="hero" aria-label="Hero">
+    <div class="hero-bg">
+      <Transition name="hero-fade" mode="out-in">
+        <img
+          :key="currentIndex"
+          :src="allPhotos[currentIndex]"
+          class="hero-bg-img"
+          alt=""
+        />
+      </Transition>
+    </div>
+
+    <div class="hero-overlay"></div>
+
     <div class="glow glow-a" aria-hidden="true"></div>
     <div class="glow glow-b" aria-hidden="true"></div>
 
     <div class="hero-text">
       <p class="eyebrow">Portfolio</p>
-
       <h1 class="name">
         <span class="name-filled">Paul</span>
         <span class="name-outline">Byers</span>
       </h1>
       <div class="divider"></div>
       <p class="caption">Photography</p>
-    </div>
-    <div class="hero-visual" aria-hidden="true">
-      <div class="strip-perspective">
-        <div class="strip-grid">
-          <div class="strip-track row-left">
-            <img v-for="(src, i) in [...photosA, ...photosA]" :key="'a'+i" :src="src" class="strip-photo" draggable="false" alt="" />
-          </div>
-          <div class="strip-track row-right">
-            <img v-for="(src, i) in [...photosB, ...photosB]" :key="'b'+i" :src="src" class="strip-photo" draggable="false" alt="" />
-          </div>
-          <div class="strip-track row-left ">
-            <img v-for="(src, i) in [...photosC, ...photosC]" :key="'c'+i" :src="src" class="strip-photo" draggable="false" alt="" />
-          </div>
-        </div>
-      </div>
     </div>
   </section>
 </template>
@@ -48,53 +60,85 @@ const photosC = allPhotos.slice(20, 30)
   display: flex;
   align-items: center;
   padding: 0 8vw;
-  gap: clamp(3rem, 6vw, 7rem);
   overflow: hidden;
-  background: #2b2517;
+  background: #0d0d0d;
   box-sizing: border-box;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.hero-fade-enter-active,
+.hero-fade-leave-active {
+  transition: opacity 1.2s ease;
+}
+
+.hero-fade-enter-from,
+.hero-fade-leave-to {
+  opacity: 0;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(135deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.35) 50%, rgba(0, 0, 0, 0.55) 100%);
 }
 
 .glow {
   position: absolute;
   border-radius: 50%;
-  filter: blur(100px);
+  filter: blur(120px);
   pointer-events: none;
+  z-index: 1;
 }
+
 .glow-a {
-  width: 100vw;
-  height: 55vw;
-  top: -10%;
+  width: 80vw;
+  height: 50vw;
+  top: -15%;
   right: -10%;
-  background: radial-gradient(circle, rgba(44, 41, 23, 0.2) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(232, 217, 181, 0.12) 0%, transparent 70%);
 }
+
 .glow-b {
-  width: 100vw;
-  height: 100vw;
-  bottom: 5%;
-  left: 5%;
-  background: radial-gradient(circle, rgba(44, 41, 23, 0.2) 0%, transparent 70%);
+  width: 70vw;
+  height: 70vw;
+  bottom: -10%;
+  left: -10%;
+  background: radial-gradient(circle, rgba(232, 217, 181, 0.08) 0%, transparent 70%);
 }
 
 .hero-text {
   position: relative;
-  z-index: 10;
-  flex: 0 0 auto;
-  align-self: flex-start;
-  padding-top: clamp(4.5rem, 12vh, 9rem);
+  z-index: 2;
 }
 
 .eyebrow {
   font-size: clamp(0.65rem, 1.1vw, 0.8rem);
   letter-spacing: 0.45em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.35);
   margin: 0 0 1.75rem;
 }
 
 .name {
   display: flex;
   flex-direction: column;
-  font-size: clamp(5rem, 9.5vw, 10rem);
+  font-size: clamp(4rem, 8vw, 9rem);
   font-weight: 800;
   line-height: 0.88;
   letter-spacing: -0.04em;
@@ -126,64 +170,25 @@ const photosC = allPhotos.slice(20, 30)
   margin: 0;
 }
 
-.hero-visual {
-  position: relative;
-  z-index: 10;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  min-height: 100vh;
-  overflow: hidden;
+@media (max-width: 768px) {
+  .hero {
+    justify-content: center;
+    text-align: center;
+    padding: 0 6vw;
+  }
 
-  mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+  .hero-overlay {
+    background:
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.45) 100%);
+  }
+
+  .name {
+    font-size: clamp(3rem, 12vw, 5rem);
+  }
+
+  .divider {
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
-
-.strip-perspective {
-  perspective: 1200px;
-  width: 100%;
-}
-
-
-.strip-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  transform: rotateX(0deg);
-  transform-origin: center center;
-}
-
-.strip-track {
-  display: flex;
-  gap: 0;
-  will-change: transform;
-}
-
-.row-left  { animation: marquee-left  28s linear infinite; }
-.row-right { animation: marquee-right 28s linear infinite; }
-.row-slow  { animation-duration: 38s; }
-
-.strip-photo {
-  flex: 0 0 auto;
-  width: 280px;
-  height: 360px;
-  object-fit: cover;
-  border-radius: 4px;
-  opacity: 0.18;
-  margin-right: 20px;
-  user-select: none;
-  -webkit-user-drag: none;
-  pointer-events: none;
-}
-
-@keyframes marquee-left {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-3000px); }
-}
-@keyframes marquee-right {
-  from { transform: translateX(-3000px); }
-  to   { transform: translateX(0); }
-}
-
-
 </style>
