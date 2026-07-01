@@ -60,13 +60,11 @@ const experiences: ServiceCardInterface[] = [
                 <div class="section-divider"></div>
             </header>
             <div class="card-grid">
-                <ServiceCard
-                    v-for="(experience, index) in experiences"
-                    :key="index"
-                    :title="experience.title"
-                    :description="experience.description"
-                    :images="experience.images"
-                />
+                <ServiceCard v-for="(experience, index) in experiences" 
+                :key="index" 
+                :title="experience.title"
+                :description="experience.description" 
+                :images="experience.images" />
             </div>
         </div>
     </section>
@@ -77,7 +75,13 @@ const experiences: ServiceCardInterface[] = [
     width: 100%;
     min-height: 100vh;
     padding: 7rem 8vw;
-    background: #0b0a13;
+    background:
+        radial-gradient(
+            circle at top,
+            #1c1c1c 0%,
+            #121212 35%,
+            #090909 100%
+        );
     box-sizing: border-box;
 }
 
@@ -107,8 +111,7 @@ const experiences: ServiceCardInterface[] = [
 }
 
 .section-divider {
-  
-    height: 1.5px;
+    height: 0.125rem;
     background: rgba(232, 217, 181, 0.28);
     margin: 1.5rem auto 0;
 }
@@ -122,7 +125,7 @@ const experiences: ServiceCardInterface[] = [
     margin: 0 auto;
 }
 
-.card-grid > * {
+.card-grid>* {
     flex: 0 0 320px;
 }
 </style>

@@ -44,6 +44,7 @@ const props = defineProps<{
     animation: lens-spin 16s linear infinite;
     z-index: -1;
     pointer-events: none;
+    
 }
 
 .social-card::after {

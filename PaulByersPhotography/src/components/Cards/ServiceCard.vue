@@ -74,8 +74,9 @@ onUnmounted(() => {
 
 .service-card:hover {
     animation: swivel 1.2s ease-in-out infinite;
-    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+    box-shadow: 0 24px 64px rgba(24, 22, 22, 0.842);
     border-color: rgb(0, 0, 0);
+    
 }
 
 .card-media {
