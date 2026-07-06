@@ -16,6 +16,14 @@ const references: ReferenceInterface[] = [
         image: '/logos/xyz-photography.png'
     }
 ]
+const companies: { src: string; name: string }[] = [
+    { src: '/logos/Alamy.jpg', name: 'Alamy' },
+    { src: '/logos/Celtic.svg', name: 'Celtic' },
+    { src: '/logos/Hamilton.svg', name: 'Hamilton' },
+    { src: '/logos/Pines-Logo-400px.jpg', name: 'Pines' },
+    { src: '/logos/Sns group.png', name: 'SNS Group' },
+    { src: '/logos/St Mirren.svg', name: 'St Mirren' },
+];
 </script>
 
 <template>
@@ -27,12 +35,25 @@ const references: ReferenceInterface[] = [
                 <div class="section-divider"></div>
             </header>
             <div class="references-grid">
-                <ReferenceCard v-for="(reference,index) in references" 
-                :key="index" 
-                :author="reference.author" 
-                :company="reference.company" 
-                :quote="reference.quote" 
-                :logo="reference.image" />
+                <ReferenceCard v-for="(reference, index) in references" :key="index" :author="reference.author"
+                    :company="reference.company" :quote="reference.quote" :logo="reference.image" />
+            </div>
+            <div class="section-companies">
+                <h2 class="section-heading">Who I've worked with</h2>
+                <div class="section-divider"></div>
+                <div class="companies-container">
+                    <div class="companies-carousel">
+                        <div class="company-logo" v-for="(company, index) in companies" :key="index">
+                            <img :src="company.src" :alt="company.name" />
+                        </div>
+                        <div class="company-logo" v-for="(company, index) in companies" :key="'dup1-' + index">
+                            <img :src="company.src" :alt="company.name" />
+                        </div>
+                        <div class="company-logo" v-for="(company, index) in companies" :key="'dup2-' + index">
+                            <img :src="company.src" :alt="company.name" />
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -49,7 +70,7 @@ const references: ReferenceInterface[] = [
             transparent 40%,
             rgba(0, 0, 0, .45) 100%),
         #090909;
-   
+
     box-sizing: border-box;
 }
 
@@ -60,7 +81,7 @@ const references: ReferenceInterface[] = [
 
 .section-header {
     margin-bottom: 4.5rem;
-} 
+}
 
 .section-eyebrow {
     font-size: 0.7rem;
@@ -84,9 +105,47 @@ const references: ReferenceInterface[] = [
     background: rgba(255, 255, 255, 0.08);
     margin: 2.5rem 0 0;
 }
+
 .references-grid {
     display: grid;
+    margin-bottom: 4.5rem;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 2rem;
+}
+
+.companies-container {
+    overflow: hidden;
+    margin-top: 2rem;
+}
+.companies-carousel {
+    display: flex;
+    gap: 2rem;
+    width: max-content;
+    animation: scroll 20s linear infinite;
+}
+.companies-carousel:hover {
+    animation-play-state: paused;
+}
+
+.companies-carousel .company-logo {
+    flex-shrink: 0;
+    width: 200px;
+    height: 130px;
+    overflow: hidden;
+}
+
+.companies-carousel .company-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+@keyframes scroll {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(calc(-100% / 3));
+    }
 }
 </style>

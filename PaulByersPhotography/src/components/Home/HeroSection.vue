@@ -11,7 +11,6 @@ let intervalId: ReturnType<typeof setInterval> | null = null
 function nextSlide() {
   currentIndex.value = (currentIndex.value + 1) % allPhotos.length
 }
-
 onMounted(() => {
   if (allPhotos.length > 0) {
     intervalId = setInterval(nextSlide, 4000)
@@ -42,7 +41,7 @@ onUnmounted(() => {
     <div class="glow glow-b" aria-hidden="true"></div>
 
     <div class="hero-text">
-      <p class="eyebrow">Portfolio</p>
+      
       <h1 class="name">
         <span class="name-filled">Paul</span>
         <span class="name-outline">Byers</span>
@@ -127,13 +126,7 @@ onUnmounted(() => {
   z-index: 2;
 }
 
-.eyebrow {
-  font-size: clamp(0.65rem, 1.1vw, 0.8rem);
-  letter-spacing: 0.45em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.35);
-  margin: 0 0 1.75rem;
-}
+
 
 .name {
   display: flex;

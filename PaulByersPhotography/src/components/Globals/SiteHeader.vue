@@ -1,9 +1,28 @@
+<script lang="ts" setup>
+import { RouterLink } from 'vue-router'
+
+interface NavRoute {
+  to: string
+  name: string
+}
+
+const routes: NavRoute[] = [
+  { to: '/', name: 'Home' },
+  { to: '/gallery', name: 'Gallery' },
+]
+</script>
+
 <template>
   <header class="site-header">
     <nav class="nav" aria-label="Main navigation">
-      <a href="#home" class="nav-link">Home</a>
-      <a href="#gallery" class="nav-link">Gallery</a>
-      <a href="#contact" class="nav-link">Contact</a>
+      <RouterLink 
+        v-for="(route, index) in routes"
+        :key="index"  
+        :to="route.to"
+        class="nav-link"
+      >
+        {{ route.name }}
+      </RouterLink>
     </nav>
   </header>
 </template>
@@ -37,7 +56,8 @@
   transition: opacity 0.2s ease, color 0.2s ease;
 }
 
-.nav-link:hover {
+.nav-link:hover,
+.nav-link.router-link-exact-active {
   opacity: 1;
   color: #f5e6c0;
 }
