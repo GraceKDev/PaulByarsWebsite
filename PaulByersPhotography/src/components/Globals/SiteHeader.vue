@@ -9,6 +9,7 @@ interface NavRoute {
 const routes: NavRoute[] = [
   { to: '/', name: 'Home' },
   { to: '/gallery', name: 'Gallery' },
+  { to: '/contact', name: 'Contact Me' },
 ]
 </script>
 
