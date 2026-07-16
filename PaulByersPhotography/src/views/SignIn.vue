@@ -19,7 +19,8 @@ const handleSubmit = async() => {
             UserEmail: signInForm.email,
             UserPassword: signInForm.password
         }
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/signin`,{
+        console.log(body)
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/login`,{
             method: "POST",
             headers: {
                 "Content-Type":"application/json"
@@ -27,7 +28,7 @@ const handleSubmit = async() => {
             body: JSON.stringify(body),
         });
         if(!response.ok){
-            errorMessage.message = `HTTP error! status: ${response.status}`;
+            errorMessage.message = `${response.statusText}`;
             return;
         }
 
