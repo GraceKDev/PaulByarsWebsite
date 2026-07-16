@@ -6,7 +6,13 @@ export interface PhotographyPhotoInterface {
     PhotoDescription:string;
     PhotoDate:string;
     PhotoLocation:string;
+    PhotoAlt:string;
     PhotoTags:string[];
+}
+
+export interface UserInterface {
+    UserEmail:string;
+    UserPassword?:string;
 }
 
 export interface PhotoSetInterface {

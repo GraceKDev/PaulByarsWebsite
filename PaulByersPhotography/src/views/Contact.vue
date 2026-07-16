@@ -119,7 +119,6 @@ const handleSubmit = () => {
 .contact-me-form textarea {
     width: 100%;
     border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 1rem;
     background: rgba(255, 255, 255, 0.04);
     color: #ffffff;
     padding: 0.95rem 1rem;

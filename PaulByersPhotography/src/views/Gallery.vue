@@ -1,20 +1,16 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import {tempPhotos} from '../lib/temp/TemPhotos';
+import {tempGallerys} from '../lib/temp/TemGallery';
+import PhotoGalleryGrid from '../components/AdminDashboard/PhotoGalleryGrid.vue';
 
-const filterOptions = [
-  { value: 'all', label: 'All' },
-  { value: 'SportEvents', label: 'Sport Events' },
-  { value: 'ConcertsAndPerformances', label: 'Concerts and Performances' },
-  { value: 'Travel Photography', label: 'Travel Photography' },
-  { value: 'Street Photography', label: 'Street Photography' },
-];
 
 const selectedFilter = ref('all');
 const isFilterOpen = ref(false);
 const filterRoot = ref<HTMLElement | null>(null);
 
 const selectedFilterLabel = computed(
-  () => filterOptions.find((option) => option.value === selectedFilter.value)?.label ?? 'All',
+  () => tempGallerys.find((option) => option.PhotoSetTitle === selectedFilter.value)?.PhotoSetTitle ?? 'All',
 );
 
 const toggleFilter = () => {
@@ -59,28 +55,27 @@ onBeforeUnmount(() => {
       </header>
       <div class="gallery-filters">
         <form @submit.prevent>
-          <label class="gallery-filter-label" for="filter">Photography Style</label>
+          <label class="gallery-filter-label" for="filter">Gallerys</label>
           <div ref="filterRoot" class="gallery-filter" @keydown="handleFilterKeydown">
             <button class="gallery-filter-trigger" type="button" aria-haspopup="listbox" :aria-expanded="isFilterOpen"
               @click="toggleFilter">
               <span>{{ selectedFilterLabel }}</span>
               <span class="gallery-filter-chevron" :class="{ 'is-open': isFilterOpen }" aria-hidden="true">▾</span>
             </button>
-            <ul v-if="isFilterOpen" class="gallery-filter-options" role="listbox" aria-label="Photography Style">
-              <li v-for="option in filterOptions" :key="option.value">
-                <button class="gallery-filter-option" :class="{ 'is-selected': selectedFilter === option.value }"
-                  type="button" role="option" :aria-selected="selectedFilter === option.value"
-                  @click="setFilter(option.value)">
-                  {{ option.label }}
+            <ul v-if="isFilterOpen" class="gallery-filter-options" role="listbox" aria-label="Gallerys">
+              <li v-for="option in tempGallerys" :key="option.PhotoSetTitle">
+                <button class="gallery-filter-option" :class="{ 'is-selected': selectedFilter === option.PhotoSetTitle }"
+                  type="button" role="option" :aria-selected="selectedFilter === option.PhotoSetTitle"
+                  @click="setFilter(option.PhotoSetTitle)">
+                  {{ option.PhotoSetTitle }}
                 </button>
               </li>
             </ul>
-
           </div>
         </form>
       </div>
       <div class="gallery-items">
-
+        <PhotoGalleryGrid :photos="tempPhotos" />
       </div>
     </div>
   </section>
@@ -161,7 +156,6 @@ onBeforeUnmount(() => {
   background: rgba(255, 255, 255, 0.06);
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.3);
-
   padding: 0.62rem 1rem;
   font-size: 0.95rem;
   letter-spacing: 0.09em;
