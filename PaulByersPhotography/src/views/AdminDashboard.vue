@@ -21,11 +21,11 @@ const photosErrorMessage = reactive({
 const tagsErrorMessage = reactive({
     message: '',
 })
-const createImageFormData = reactive({
+const imageFormData = reactive({
     photoTitle:'',
     photoDescription:'',
     photoLocation:'',
-    photoTags: '',
+    photoTags: [''],
     photoSetId:'',
 })
 
@@ -51,6 +51,7 @@ const isGalleryCreateModalOpen = ref(false)
 const isTagCreateModalOpen = ref(false)
 const isTagEditModalOpen = ref(false)
 const editingGalleryId = ref<string | null>(null)
+const editingPhotoId = ref<string | null>(null)
 const editingGalleryName = ref('')
 const deleteModalTargetType = ref<DeleteModalTargetType>('gallery')
 const deleteModalTargetName = ref('')
@@ -191,16 +192,27 @@ const saveTagName = async () => {
 const openPhotoCreateModal = () => {
     isPhotoCreateModalOpen.value = true
     isPhotoEditModalOpen.value = false
-    createImageFormData.photoTitle = ''
-    createImageFormData.photoDescription = ''
-    createImageFormData.photoLocation = ''
-    createImageFormData.photoTags = ''
-    createImageFormData.photoSetId = ''
+    imageFormData.photoTitle = ''
+    imageFormData.photoDescription = ''
+    imageFormData.photoLocation = ''
+    imageFormData.photoTags = []
+    imageFormData.photoSetId = ''
     photoPreviewUrl.value = null
 }
 
+const openPhotoEditModal = (photo:PhotographyPhotoInterface) => {
+    editingPhotoId.value = photo.photoId;
+    imageFormData.photoTitle = photo.photoTitle;
+    imageFormData.photoLocation = photo.photoLocation;
+    imageFormData.photoTags = photo.photoTags;
+    imageFormData.photoDescription = photo.photoDescription;
+    isPhotoEditModalOpen.value = true;
+    isPhotoCreateModalOpen.value = false;
+
+}
+
 const createImageModalSubmit = async () => {
-    if (!createImageFormData.photoTitle.trim()) {
+    if (!imageFormData.photoTitle.trim()) {
         return
     }
 
@@ -210,11 +222,11 @@ const createImageModalSubmit = async () => {
 const closePhotoModal = () => {
     isPhotoCreateModalOpen.value = false
     isPhotoEditModalOpen.value = false
-    createImageFormData.photoTitle = ''
-    createImageFormData.photoDescription = ''
-    createImageFormData.photoLocation = ''
-    createImageFormData.photoTags = ''
-    createImageFormData.photoSetId = ''
+    imageFormData.photoTitle = ''
+    imageFormData.photoDescription = ''
+    imageFormData.photoLocation = ''
+    imageFormData.photoTags = []
+    imageFormData.photoSetId = ''
     if (photoPreviewUrl.value) {
         URL.revokeObjectURL(photoPreviewUrl.value)
     }
@@ -399,19 +411,19 @@ const confirmDelete = () => {
                     </div>
                     <div class="modal-field">
                         <label class="modal-label" for="photo-title-input">Photo title</label>
-                        <input id="photo-title-input" v-model="createImageFormData.photoTitle" class="modal-input" type="text" autocomplete="off" />
+                        <input id="photo-title-input" v-model="imageFormData.photoTitle" class="modal-input" type="text" autocomplete="off" />
                     </div>
                     <div class="modal-field">
                         <label class="modal-label" for="photo-description-input">Description</label>
-                        <textarea id="photo-description-input" v-model="createImageFormData.photoDescription" class="modal-textarea" autocomplete="off"></textarea>
+                        <textarea id="photo-description-input" v-model="imageFormData.photoDescription" class="modal-textarea" autocomplete="off"></textarea>
                     </div>
                     <div class="modal-field">
                         <label class="modal-label" for="photo-location-input">Location</label>
-                        <input id="photo-location-input" v-model="createImageFormData.photoLocation" class="modal-input" type="text" autocomplete="off" />
+                        <input id="photo-location-input" v-model="imageFormData.photoLocation" class="modal-input" type="text" autocomplete="off" />
                     </div>
                     <div class="modal-field">
                         <label class="modal-label" for="photo-tags-input">Tags</label>
-                        <select id="photo-tags-input" v-model="createImageFormData.photoTags" class="modal-select">
+                        <select id="photo-tags-input" v-model="imageFormData.photoTags" class="modal-select">
                             <option value="">Select a tag</option>
                             <option v-for="tag in tags" :key="tag.tagId" :value="tag.tagId">
                                 {{ tag.tagName }}
@@ -420,7 +432,7 @@ const confirmDelete = () => {
                     </div>
                     <div class="modal-field">
                         <label class="modal-label" for="photo-gallery-select">Gallery</label>
-                        <select id="photo-gallery-select" v-model="createImageFormData.photoSetId" class="modal-select">
+                        <select id="photo-gallery-select" v-model="imageFormData.photoSetId" class="modal-select">
                             <option value="">Select a gallery</option>
                             <option v-for="gallery in gallerys" :key="gallery.photoSetId" :value="gallery.photoSetId">
                                 {{ gallery.photoSetTitle }}

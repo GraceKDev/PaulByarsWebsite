@@ -4,7 +4,7 @@ import type { PhotographyPhotoInterface } from '../../lib/types/PhotographyPhoto
 const props = defineProps<{
     photos: Array<PhotographyPhotoInterface>
 }>()
-const editMode = ref(false)
+const editMode = ref(true)
 const deleteModal = ref(false)
 const photoModal = ref(false)
 
