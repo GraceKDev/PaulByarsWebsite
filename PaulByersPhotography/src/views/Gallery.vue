@@ -10,7 +10,7 @@ const isFilterOpen = ref(false);
 const filterRoot = ref<HTMLElement | null>(null);
 
 const selectedFilterLabel = computed(
-  () => tempGallerys.find((option) => option.PhotoSetTitle === selectedFilter.value)?.PhotoSetTitle ?? 'All',
+  () => tempGallerys.find((option) => option.photoSetTitle === selectedFilter.value)?.photoSetTitle ?? 'All',
 );
 
 const toggleFilter = () => {
@@ -63,11 +63,11 @@ onBeforeUnmount(() => {
               <span class="gallery-filter-chevron" :class="{ 'is-open': isFilterOpen }" aria-hidden="true">▾</span>
             </button>
             <ul v-if="isFilterOpen" class="gallery-filter-options" role="listbox" aria-label="Gallerys">
-              <li v-for="option in tempGallerys" :key="option.PhotoSetTitle">
-                <button class="gallery-filter-option" :class="{ 'is-selected': selectedFilter === option.PhotoSetTitle }"
-                  type="button" role="option" :aria-selected="selectedFilter === option.PhotoSetTitle"
-                  @click="setFilter(option.PhotoSetTitle)">
-                  {{ option.PhotoSetTitle }}
+              <li v-for="option in tempGallerys" :key="option.photoSetTitle">
+                <button class="gallery-filter-option" :class="{ 'is-selected': selectedFilter === option.photoSetTitle }"
+                  type="button" role="option" :aria-selected="selectedFilter === option.photoSetTitle"
+                  @click="setFilter(option.photoSetTitle)">
+                  {{ option.photoSetTitle }}
                 </button>
               </li>
             </ul>

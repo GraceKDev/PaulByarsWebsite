@@ -27,7 +27,7 @@ const deletePhoto = (photo: PhotographyPhotoInterface) => {
 
 const openPhotoModal = (photo: PhotographyPhotoInterface) => {
     photoModal.value = true
-    selectedPhoto.value = photo // Set the selected photo to the clicked photo
+    selectedPhoto.value = photo 
 }
 const closePhotoModal = () => {
     photoModal.value = false
@@ -44,7 +44,7 @@ const closePhotoModal = () => {
                 <p class="add-photo-text"> Add Photo</p>
             </div>
         </div>
-        <div v-for="photo in props.photos" :key="photo.PhotoId" class="photo-gallery-item">
+        <div v-for="photo in props.photos" :key="photo.photoId" class="photo-gallery-item">
             <div class="photo-gallery-item-content">
                 <div class="photo-gallery-item-overlay">
 
@@ -56,13 +56,13 @@ const closePhotoModal = () => {
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
                     </div>
-                    <img @click="openPhotoModal(photo)" :src="photo.PhotoUrl" :alt="photo.PhotoAlt" />
+                    <img @click="openPhotoModal(photo)" :src="photo.photoUrl" :alt="photo.photoAlt" />
                 </div>
             </div>
         </div>
         <div v-if="photoModal && selectedPhoto" class="photo-inspect-modal" @click="closePhotoModal">
             <div class="photo-inspect-modal-content" @click.stop>
-                <img :src="selectedPhoto.PhotoUrl" :alt="selectedPhoto.PhotoAlt" />
+                <img :src="selectedPhoto.photoUrl" :alt="selectedPhoto.photoAlt" />
             </div>
         </div>
 

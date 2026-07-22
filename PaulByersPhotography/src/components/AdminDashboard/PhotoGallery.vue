@@ -3,17 +3,18 @@ import { computed, ref } from 'vue'
 import PhotoGalleryGrid from './PhotoGalleryGrid.vue'
 import type { PhotographyPhotoInterface, PhotoSetInterface } from '../../lib/types/PhotographyPhotoInterface.ts';
 const props = defineProps<{
-    galleries: Array<PhotoSetInterface>
+    galleries: Array<PhotoSetInterface | null>
     photos: Array<PhotographyPhotoInterface>
+    errorMessage?:string
 }>()
 
 console.log('props.galleries:', props.galleries)
-const selectedPhotoSet = ref(props.galleries.length > 0 ? props.galleries[0].PhotoSetTitle : 'Select a photo set')
+const selectedPhotoSet = ref(props.galleries.length > 0 ? props.galleries[0]?.photoSetTitle : 'Select a photo set')
 
 const selectedPhotoSetLabel = computed(() => {
-    const gallery = props.galleries.find(g => g.PhotoSetTitle === selectedPhotoSet.value)
+    const gallery = props.galleries.find(g => g?.photoSetTitle === selectedPhotoSet.value)
     if (gallery) {
-        return gallery.PhotoSetTitle
+        return gallery.photoSetTitle
     }
 
     return 'Select a photo set'
@@ -25,16 +26,17 @@ const selectedPhotoSetLabel = computed(() => {
         <div class="photo-gallery-header">
             <h3>Photo Gallery Config</h3>
             <p>Select a gallery to edit and update its settings.</p>
+            <p>{{props.errorMessage}}</p>
         </div>
         <div class="photo-gallery-content">
             <div class="photo-set-selector-container">
                 <select v-model="selectedPhotoSet" class="photo-set-selector">
                     <option
                         v-for="gallery in galleries"
-                        :key="gallery.PhotoSetId"
-                        :value="gallery.PhotoSetTitle"
+                        :key="gallery?.photoSetId"
+                        :value="gallery?.photoSetTitle"
                     >
-                        {{ gallery.PhotoSetTitle }}
+                        {{ gallery?.photoSetTitle }}
                     </option>
                 </select>
             </div>

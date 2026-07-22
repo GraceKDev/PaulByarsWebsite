@@ -2,11 +2,11 @@ import type { PhotoSetInterface } from "../types/PhotographyPhotoInterface";
 
 export const tempGallerys:PhotoSetInterface[] = [
     {
-        PhotoSetId: '1',
-        PhotoSetTitle: 'ImagesHero',
+        photoSetId: '1',
+        photoSetTitle: 'ImagesHero',
     },
     {
-        PhotoSetId: '2',
-        PhotoSetTitle: 'ImagesHero2',
+        photoSetId: '2',
+        photoSetTitle: 'ImagesHero2',
     },
 ] as const;

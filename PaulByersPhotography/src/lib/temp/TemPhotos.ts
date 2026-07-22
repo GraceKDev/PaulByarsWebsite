@@ -121,13 +121,13 @@ const buildPhotoTitle = (fileName: string) => fileName.replace(/\.[^.]+$/, '')
 const extractPhotoDate = (fileName: string) => fileName.match(/\d{1,2}-\d{1,2}-\d{4}/)?.[0] ?? ''
 
 export const tempPhotos: PhotographyPhotoInterface[] = photoFileNames.map((fileName, index) => ({
-    PhotoId: String(index + 1),
-    PhotoSetId: '1',
-    PhotoUrl: `/ImagesHero/${fileName}`,
-    PhotoTitle: buildPhotoTitle(fileName),
-    PhotoDescription: `Image from ImagesHero: ${buildPhotoTitle(fileName)}`,
-    PhotoDate: extractPhotoDate(fileName),
-    PhotoLocation: '',
-    PhotoAlt: buildPhotoTitle(fileName),
-    PhotoTags: ['ImagesHero'],
+    photoId: String(index + 1),
+    photoSetId: '1',
+    photoUrl: `/ImagesHero/${fileName}`,
+    photoTitle: buildPhotoTitle(fileName),
+    photoDescription: `Image from ImagesHero: ${buildPhotoTitle(fileName)}`,
+    photoDate: extractPhotoDate(fileName),
+    photoLocation: '',
+    photoAlt: buildPhotoTitle(fileName),
+    photoTags: ['ImagesHero'],
 }))

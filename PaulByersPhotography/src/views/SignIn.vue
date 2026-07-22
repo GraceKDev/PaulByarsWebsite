@@ -1,45 +1,20 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
-import { useRouter } from 'vue-router';
-import type { UserInterface } from '../lib/types/PhotographyPhotoInterface';
+import { handleLogin } from '../lib/api/auth';
 
-const router = useRouter();
 
 const signInForm = reactive({
-    email: '',
-    password: '',
+    userEmail: '',
+    userPassword: '',
 });
 
 const errorMessage = reactive({
     message: '',
 });
 const handleSubmit = async() => {
-    try{
-        const body:UserInterface = {
-            UserEmail: signInForm.email,
-            UserPassword: signInForm.password
-        }
-        console.log(body)
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/login`,{
-            method: "POST",
-            headers: {
-                "Content-Type":"application/json"
-            },
-            body: JSON.stringify(body),
-        });
-        if(!response.ok){
-            errorMessage.message = `${response.statusText}`;
-            return;
-        }
-
-        errorMessage.message = '';
-        await router.push('/admin');
-    }
-    catch(error){
-        console.error('Error signing in:', error);
-        errorMessage.message = 'Unable to sign in. Please try again.';
-    }
+    handleLogin(signInForm, errorMessage);
 };
+
 </script>
 <template>
     <section class="sign-in" aria-label="Sign In">
@@ -57,11 +32,11 @@ const handleSubmit = async() => {
                     </div>
                     <form class="sign-in-form" @submit.prevent="handleSubmit">
                         <label aria-label="Email" for="email">Email</label>
-                        <input v-model="signInForm.email" type="email" id="email" name="email" autocomplete="email"
+                        <input v-model="signInForm.userEmail" type="email" id="email" name="email" autocomplete="email"
                             required />
 
                         <label aria-label="Password" for="password">Password</label>
-                        <input v-model="signInForm.password" type="password" id="password" name="password"
+                        <input v-model="signInForm.userPassword" type="password" id="password" name="password"
                             autocomplete="current-password" required />
 
                         <button class="sign-in-submit" type="submit">Sign In</button>

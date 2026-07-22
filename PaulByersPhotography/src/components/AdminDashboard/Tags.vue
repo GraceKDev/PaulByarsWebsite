@@ -1,31 +1,32 @@
 <script lang="ts" setup>
-import type { PhotoSetInterface } from '../../lib/types/PhotographyPhotoInterface';
+import type { TagInterface } from '../../lib/types/PhotographyPhotoInterface';
+
 
 const props = defineProps<{
-    gallerys: Array<PhotoSetInterface>
+    tags: Array<TagInterface>
     errorMessage?: string
 }>()
-console.log(props.gallerys)
+console.log(props.tags)
 const emit = defineEmits<{
-    (event: 'edit-gallery-name', gallery: PhotoSetInterface): void
-    (event: 'delete-gallery', gallery: PhotoSetInterface): void
-    (event: 'create-gallery'): void
+    (event: 'edit-tag-name', tag: TagInterface): void
+    (event: 'delete-tag', tag: TagInterface): void
+    (event: 'create-tag'): void
 }>()
 
-const onEditGalleryName = (gallery: PhotoSetInterface | null) => {
-    if (gallery) {
-        emit('edit-gallery-name', gallery)
+const onEditTagName = (tag: TagInterface | null) => {
+    if (tag) {
+        emit('edit-tag-name', tag)
     }
 }
 
-const onDeleteGallery = (gallery: PhotoSetInterface | null) => {
-    if (gallery) {
-        emit('delete-gallery', gallery)
+const onDeleteTag = (tag: TagInterface | null) => {
+    if (tag) {
+        emit('delete-tag', tag)
     }
 }
 
-const onCreateGallery = () => {
-    emit('create-gallery')
+const onCreateTag = () => {
+    emit('create-tag')
 }
 </script>
 <template>
@@ -37,17 +38,17 @@ const onCreateGallery = () => {
         </div>
         <div class="gallerys-list">
             <div class="gallery-item-header"> 
-                <button class="gallery-item-button add" type="button" @click="onCreateGallery">New Gallery</button>
+                <button class="gallery-item-button add" type="button" @click="onCreateTag">New Tag</button>
             </div>
-            <template v-if="!props.gallerys || props.gallerys.length === 0">
-                <p>No galleries available.</p>
+            <template v-if="!props.tags || props.tags.length === 0">
+                <p>No tags available.</p>
             </template>
             <template v-else>
-                <div v-for="gallery in props.gallerys" :key="gallery.photoSetId" class="gallery-item">
-                    <h4 class="galleryPhotoSetTitle">{{ gallery.photoSetTitle }}</h4>
+                <div v-for="tag in props.tags" :key="tag.TagId" class="gallery-item">
+                    <h4 class="galleryPhotoSetTitle">{{ tag.TagTitle }}</h4>
                     <div class="gallery-item-button-container"> 
-                        <button class="gallery-item-button" type="button" @click="onEditGalleryName(gallery)">Edit</button>
-                        <button class="gallery-item-button delete" type="button" @click="onDeleteGallery(gallery)">Delete</button>
+                        <button class="gallery-item-button" type="button" @click="onEditTagName(tag)">Edit</button>
+                        <button class="gallery-item-button delete" type="button" @click="onDeleteTag(tag)">Delete</button>
                     </div>
                 </div>
             </template>

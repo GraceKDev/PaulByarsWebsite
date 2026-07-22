@@ -1,23 +1,37 @@
 export interface PhotographyPhotoInterface {
-    PhotoId: string;
-    PhotoSetId:string;
-    PhotoUrl:string;
-    PhotoTitle:string;
-    PhotoDescription:string;
-    PhotoDate:string;
-    PhotoLocation:string;
-    PhotoAlt:string;
-    PhotoTags:string[];
+    photoId: string;
+    photoSetId:string;
+    photoUrl:string;
+    photoTitle:string;
+    photoDescription:string;
+    photoDate:string;
+    photoLocation:string;
+    photoAlt:string;
+    photoTags:string[];
 }
 
 export interface UserInterface {
-    UserEmail:string;
-    UserPassword?:string;
+    userEmail:string;
+    userPassword?:string;
 }
 
 export interface PhotoSetInterface {
-    PhotoSetId:string;
-    PhotoSetTitle:string;
+    photoSetId:string;
+    photoSetTitle:string;
     
+}
+
+export interface TagInterface  {
+    TagId:string;
+    TagTitle:string;
+    
+}
+
+export interface TagDTO  {
+    TagTitle:string;
+}
+
+export interface PhotoSetDTO {
+    photoSetTitle:string;
 }
     

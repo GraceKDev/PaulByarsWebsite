@@ -4,6 +4,8 @@ const props = defineProps<{
     active: boolean
     setActive: (active: boolean) => void
     content?: string
+    loading?: boolean
+    loadingLabel?: string
 }>()
 </script>
 
@@ -12,6 +14,7 @@ const props = defineProps<{
         <button class="accordion-trigger" type="button" @click="props.setActive(!props.active)"
             :aria-expanded="props.active">
             <h3 class="accordion-title">{{ props.title }}</h3>
+            
             <div class="accordion-chevron-container">
                 <svg class="accordion-chevron" :class="{ 'is-open': props.active }" width="18" height="18"
                     viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -23,7 +26,11 @@ const props = defineProps<{
 
         <Transition name="accordion-content-transition">
             <div v-if="props.active" class="accordion-content">
-                <slot>
+                <div v-if="props.loading" class="accordion-loading" role="status" aria-live="polite">
+                    <div class="accordion-spinner" aria-hidden="true"></div>
+                    <span>{{ props.loadingLabel || 'Loading...' }}</span>
+                </div>
+                <slot v-else>
                     {{ props.content }}
                 </slot>
             </div>
@@ -70,6 +77,30 @@ const props = defineProps<{
     padding: 0 0 1rem;
     overflow: hidden;
     height: 100%;
+}
+
+.accordion-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1.25rem 0;
+    color: #e8d9b5;
+}
+
+.accordion-spinner {
+    width: 1.1rem;
+    height: 1.1rem;
+    border: 2px solid rgba(232, 217, 181, 0.25);
+    border-top-color: #e8d9b5;
+    border-radius: 50%;
+    animation: accordion-spin 0.8s linear infinite;
+}
+
+@keyframes accordion-spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .accordion-content-transition-enter-active,
