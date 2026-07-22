@@ -22,13 +22,13 @@ export interface PhotoSetInterface {
 }
 
 export interface TagInterface  {
-    TagId:string;
-    TagTitle:string;
+    tagId:string;
+    tagName:string;
     
 }
 
 export interface TagDTO  {
-    TagTitle:string;
+    tagName:string;
 }
 
 export interface PhotoSetDTO {

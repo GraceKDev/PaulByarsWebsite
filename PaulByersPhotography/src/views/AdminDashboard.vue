@@ -3,18 +3,24 @@ import { onMounted, reactive, ref, Suspense } from 'vue'
 import Accordion from '../components/Globals/Accordion.vue'
 import PhotoGallery from '../components/AdminDashboard/PhotoGallery.vue';
 import Gallerys from '../components/AdminDashboard/Gallerys.vue';
+import Tags from '../components/AdminDashboard/Tags.vue';
 import { tempPhotos } from '../lib/temp/TemPhotos';
-import type { PhotographyPhotoInterface, PhotoSetInterface } from '../lib/types/PhotographyPhotoInterface';
+import type { PhotographyPhotoInterface, PhotoSetInterface, TagInterface } from '../lib/types/PhotographyPhotoInterface';
 import { createGallery, getAllGallery, putGallery } from '../lib/api/photoset.ts';
+import { createTag, getAllTags, putTag } from '../lib/api/tag.ts';
 
-type AdminAccordionKey = 'photo-gallery' | 'photo-set-creations'
+type AdminAccordionKey = 'photo-gallery' | 'photo-set-creations' | 'tags'
+type DeleteModalTargetType = 'gallery' | 'tag' | 'photo'
+
 const photoGalleryErrorMessage = reactive({
     message: '',
 })
 const photosErrorMessage = reactive({
     message: '',
 })
-
+const tagsErrorMessage = reactive({
+    message: '',
+})
 const createImageFormData = reactive({
     photoTitle:'',
     photoDescription:'',
@@ -23,25 +29,46 @@ const createImageFormData = reactive({
     photoSetId:'',
 })
 
+const photoPreviewUrl = ref<string | null>(null)
+const photoUploadInput = ref<HTMLInputElement | null>(null)
 
 const activeAccordion = ref<AdminAccordionKey | null>(null)
 const gallerys = ref<PhotoSetInterface[]>([])
+const tags = ref<TagInterface[]>([])
 const photos = ref<PhotographyPhotoInterface[]>(tempPhotos.map((photo) => ({ ...photo })))
 const isAccordionLoading = ref(true)
-const isCreateImageModalOpen = ref(false)
+
 
 onMounted(async () => {
     await refreshGalleries()
+    await refreshTags()
 })
-
-const isRenameModalOpen = ref(false)
+const isPhotoCreateModalOpen = ref(false)
+const isPhotoEditModalOpen = ref(false)
+const isGalleryEditModalOpen = ref(false)
 const isDeleteModalOpen = ref(false)
-const isCreateModalOpen = ref(false)
+const isGalleryCreateModalOpen = ref(false)
+const isTagCreateModalOpen = ref(false)
+const isTagEditModalOpen = ref(false)
 const editingGalleryId = ref<string | null>(null)
 const editingGalleryName = ref('')
+const deleteModalTargetType = ref<DeleteModalTargetType>('gallery')
+const deleteModalTargetName = ref('')
 
 const setAccordionOpen = (key: AdminAccordionKey, isOpen: boolean) => {
     activeAccordion.value = isOpen ? key : null
+}
+
+const refreshTags = async () => {
+    isAccordionLoading.value = true
+    try {
+        tags.value = await getAllTags(tagsErrorMessage)
+    } catch (error) {
+        tagsErrorMessage.message = 'Unable to load tags.'
+        console.error(error)
+    } finally {
+        isAccordionLoading.value = false
+    }
 }
 
 const refreshGalleries = async () => {
@@ -56,30 +83,38 @@ const refreshGalleries = async () => {
     }
 }
 
-const openDeleteModal = (gallery: PhotoSetInterface) => {
-    editingGalleryId.value = gallery.photoSetId
+const openDeleteModal = (targetType: DeleteModalTargetType, itemId: string | null, itemName: string) => {
+    deleteModalTargetType.value = targetType
+    deleteModalTargetName.value = itemName
+    editingGalleryId.value = itemId
     isDeleteModalOpen.value = true
 }
 
-const openCreateModal = () => {
-    editingGalleryId.value = null
-    editingGalleryName.value = ''
-    isCreateModalOpen.value = true
+const openGalleryDeleteModal = (gallery: PhotoSetInterface) => {
+    openDeleteModal('gallery', gallery.photoSetId, gallery.photoSetTitle)
 }
 
-const openRenameModal = (gallery: PhotoSetInterface) => {
+const openGalleryCreateModal = () => {
+    editingGalleryId.value = null
+    editingGalleryName.value = ''
+    isGalleryCreateModalOpen.value = true
+    isGalleryEditModalOpen.value = false
+}
+
+const openGalleryEditModal = (gallery: PhotoSetInterface) => {
     editingGalleryId.value = gallery.photoSetId
     editingGalleryName.value = gallery.photoSetTitle
-    isRenameModalOpen.value = true
+    isGalleryEditModalOpen.value = true
+    isGalleryCreateModalOpen.value = false
 }
 
-const closeCreateModal = () => {
-    isCreateModalOpen.value = false
+const closeGalleryCreateModal = () => {
+    isGalleryCreateModalOpen.value = false
     editingGalleryId.value = null
     editingGalleryName.value = ''
 }
-const closeRenameModal = () => {
-    isRenameModalOpen.value = false
+const closeGalleryEditModal = () => {
+    isGalleryEditModalOpen.value = false
     editingGalleryId.value = null
     editingGalleryName.value = ''
 }
@@ -94,7 +129,7 @@ const saveGalleryName = async () => {
 
     if (response) {
         await refreshGalleries()
-        closeRenameModal()
+        closeGalleryEditModal()
     }
 }
 
@@ -106,25 +141,115 @@ const createGallerySubmit = async () => {
     const response = await createGallery({ photoSetTitle: trimmedName }, photoGalleryErrorMessage)
     if (response) {
         await refreshGalleries()
-        closeCreateModal()
+        closeGalleryCreateModal()
     }
     else {
         console.error('Failed to create gallery:', photoGalleryErrorMessage.message)
     }
-
 }
 
-const createImageModalSubmit = async () => {
 
+const openTagEditModal = (tag: TagInterface) => {
+    editingGalleryId.value = tag.tagId
+    editingGalleryName.value = tag.tagName
+    isTagEditModalOpen.value = true
+    isTagCreateModalOpen.value = false
+}
+const openTagDeleteModal = (tag: TagInterface) => {
+    openDeleteModal('tag', tag.tagId, tag.tagName)
+}
+const openTagCreateModal = () => {
+    editingGalleryId.value = null
+    editingGalleryName.value = ''
+    isTagCreateModalOpen.value = true
+    isTagEditModalOpen.value = false
 }
 
-const closeImageCreateModal = () => {
-    isCreateImageModalOpen.value = false
+const closeTagModal = () => {
+    isTagCreateModalOpen.value = false
+    isTagEditModalOpen.value = false
+    editingGalleryId.value = null
+    editingGalleryName.value = ''
+}
+
+const saveTagName = async () => {
+    const trimmedName = editingGalleryName.value.trim()
+    if (!trimmedName) {
+        return
+    }
+
+    const response = editingGalleryId.value
+        ? await putTag({ tagName: trimmedName }, editingGalleryId.value, tagsErrorMessage)
+        : await createTag({ tagName: trimmedName }, tagsErrorMessage)
+
+    if (response) {
+        await refreshTags()
+        closeTagModal()
+    }
+}
+
+const openPhotoCreateModal = () => {
+    isPhotoCreateModalOpen.value = true
+    isPhotoEditModalOpen.value = false
     createImageFormData.photoTitle = ''
     createImageFormData.photoDescription = ''
     createImageFormData.photoLocation = ''
     createImageFormData.photoTags = ''
     createImageFormData.photoSetId = ''
+    photoPreviewUrl.value = null
+}
+
+const createImageModalSubmit = async () => {
+    if (!createImageFormData.photoTitle.trim()) {
+        return
+    }
+
+    closePhotoModal()
+}
+
+const closePhotoModal = () => {
+    isPhotoCreateModalOpen.value = false
+    isPhotoEditModalOpen.value = false
+    createImageFormData.photoTitle = ''
+    createImageFormData.photoDescription = ''
+    createImageFormData.photoLocation = ''
+    createImageFormData.photoTags = ''
+    createImageFormData.photoSetId = ''
+    if (photoPreviewUrl.value) {
+        URL.revokeObjectURL(photoPreviewUrl.value)
+    }
+    photoPreviewUrl.value = null
+}
+
+const openPhotoPicker = () => {
+    photoUploadInput.value?.click()
+}
+
+const handlePhotoFileSelection = (event: Event) => {
+    const input = event.target as HTMLInputElement
+    const file = input.files?.[0]
+
+    if (!file) {
+        return
+    }
+
+    if (photoPreviewUrl.value) {
+        URL.revokeObjectURL(photoPreviewUrl.value)
+    }
+
+    photoPreviewUrl.value = URL.createObjectURL(file)
+}
+
+const closeDeleteModal = () => {
+    isDeleteModalOpen.value = false
+    deleteModalTargetType.value = 'gallery'
+    deleteModalTargetName.value = ''
+    editingGalleryId.value = null
+}
+
+const confirmDelete = () => {
+    console.log(`Deleting ${deleteModalTargetType.value}: ${deleteModalTargetName.value}`)
+    closeDeleteModal()
 }
 
 </script>
@@ -139,13 +264,29 @@ const closeImageCreateModal = () => {
                 <div class="admin-dashboard-section">
                     <h2 class="admin-dashboard-section-heading">Manage Content</h2>
                     <Suspense>
-                        <Accordion title="Gallerys" :active="activeAccordion === 'photo-set-creations'"
+                        <Accordion title="Tags" :sub-title="'Create and modify tags for photos'"  :active="activeAccordion === 'tags'"
+                            :set-active="(isOpen) => setAccordionOpen('tags', isOpen)"
+                            :loading="isAccordionLoading"
+                            loading-label="Loading tags...">
+                            <Tags :error-message="tagsErrorMessage.message" :tags="tags"
+                                @edit-tag-name="openTagEditModal" @delete-tag="openTagDeleteModal"
+                                @create-tag="openTagCreateModal" />
+                        </Accordion>
+                        <template #fallback>
+                            <div class="accordion-loading-state">
+                                <div class="accordion-spinner" aria-hidden="true"></div>
+                                <span>Loading tags...</span>
+                            </div>
+                        </template>
+                    </Suspense>
+                    <Suspense>
+                        <Accordion title="Gallerys" :sub-title="'Modify and Create galleries'" :active="activeAccordion === 'photo-set-creations'"
                             :set-active="(isOpen) => setAccordionOpen('photo-set-creations', isOpen)"
                             :loading="isAccordionLoading"
                             loading-label="Loading galleries...">
                             <Gallerys :error-message="photoGalleryErrorMessage.message" :gallerys="gallerys"
-                                @edit-gallery-name="openRenameModal" @delete-gallery="openDeleteModal"
-                                @create-gallery="openCreateModal" />
+                                @edit-gallery-name="openGalleryEditModal" @delete-gallery="openGalleryDeleteModal"
+                                @create-gallery="openGalleryCreateModal" />
                         </Accordion>
                         <template #fallback>
                             <div class="accordion-loading-state">
@@ -155,12 +296,12 @@ const closeImageCreateModal = () => {
                         </template>
                     </Suspense>
                     <Suspense>
-                        <Accordion title="Photo Gallery" :active="activeAccordion === 'photo-gallery'"
+                        <Accordion title="Photo Gallery" :sub-title="'Add and Delete photos from galleries'" :active="activeAccordion === 'photo-gallery'"
                             :set-active="(isOpen) => setAccordionOpen('photo-gallery', isOpen)"
                             :loading="isAccordionLoading"
                             loading-label="Loading photo gallery...">
                             <PhotoGallery :error-message="photosErrorMessage.message" :galleries="gallerys"
-                                :photos="photos" />
+                                :photos="photos" @create-photo="openPhotoCreateModal" />
                         </Accordion>
                         <template #fallback>
                             <div class="accordion-loading-state">
@@ -169,61 +310,130 @@ const closeImageCreateModal = () => {
                             </div>
                         </template>
                     </Suspense>
+                    
                 </div>
             </div>
         </div>
-        <div v-if="isCreateModalOpen" class="modal-backdrop" @click.self="closeCreateModal">
-            <div class="create-modal" role="dialog" aria-modal="true" aria-label="Create gallery">
+        <div v-if="isGalleryCreateModalOpen" class="modal-backdrop" @click.self="closeGalleryCreateModal">
+            <div class="modal-shell" role="dialog" aria-modal="true" aria-label="Create gallery">
                 <h3 class="modal-title">Create Gallery</h3>
                 <p class="modal-error-message">{{ photoGalleryErrorMessage.message }}</p>
-                <label class="modal-label" for="gallery-name-input">Gallery name</label>
-                <input id="gallery-name-input" v-model="editingGalleryName" class="create-modal-input" type="text"
-                    autocomplete="off" @keyup.enter="createGallerySubmit" />
+                <div class="modal-form">
+                    <div class="modal-field">
+                        <label class="modal-label" for="gallery-name-input">Gallery name</label>
+                        <input id="gallery-name-input" v-model="editingGalleryName" class="modal-input" type="text"
+                            autocomplete="off" @keyup.enter="createGallerySubmit" />
+                    </div>
+                </div>
                 <div class="modal-actions">
                     <button type="button" class="modal-button secondary"
-                        @click="closeCreateModal">Cancel</button>
+                        @click="closeGalleryCreateModal">Cancel</button>
                     <button type="button" class="modal-button primary"
                         @click="createGallerySubmit">Create</button>
                 </div>
             </div>
         </div>
-        <div v-if="isRenameModalOpen" class="modal-backdrop" @click.self="closeRenameModal">
-            <div class="rename-modal" role="dialog" aria-modal="true" aria-label="Edit gallery name">
+        <div v-if="isGalleryEditModalOpen" class="modal-backdrop" @click.self="closeGalleryEditModal">
+            <div class="modal-shell" role="dialog" aria-modal="true" aria-label="Edit gallery name">
                 <h3 class="modal-title">Edit Gallery Name</h3>
-                <label class="modal-label" for="gallery-name-input">Gallery name</label>
-                <input id="gallery-name-input" v-model="editingGalleryName" class="rename-modal-input" type="text"
-                    autocomplete="off" @keyup.enter="saveGalleryName" />
+                <div class="modal-form">
+                    <div class="modal-field">
+                        <label class="modal-label" for="gallery-name-edit-input">Gallery name</label>
+                        <input id="gallery-name-edit-input" v-model="editingGalleryName" class="modal-input" type="text"
+                            autocomplete="off" @keyup.enter="saveGalleryName" />
+                    </div>
+                </div>
                 <div class="modal-actions">
                     <button type="button" class="modal-button secondary"
-                        @click="closeRenameModal">Cancel</button>
+                        @click="closeGalleryEditModal">Cancel</button>
                     <button type="button" class="modal-button primary" @click="saveGalleryName">Save</button>
                 </div>
             </div>
         </div>
 
-         <!-- <div v-if="isCreateImageModalOpen" class="modal-backdrop" @click.self="closeImageCreateModal">
-            <div class="create-image-modal" role="dialog" aria-modal="true" aria-label="Create image">
-                <h3 class="create-image-modal-title">Create Image</h3>
-                <form class="create-image-modal-form" @submit.prevent="createImageModalSubmit"> 
-                    <label class="create-image-modal-label" for="image-name-input">Image Title</label>
-                    <input id="image-name-input" v-model="createImageFormData.photoTitle" class="create-image-modal-input" type="text"
-                        autocomplete="off" @keyup.enter="createImageModalSubmit" />
-                    <label class="create-image-modal-label" for="image-description-input">Image Description</label>
-                    <textarea id="image-description-input" v-model="createImageFormData.photoDescription" class="create-image-modal-textarea" type="text"
-                        autocomplete="off" @keyup.enter="createImageModalSubmit" />
-                    <label class="create-image-modal-label" for="image-location-input">Image Location</label>
-                    <input id="image-location-input" v-model="createImageFormData.photoLocation" class="create-image-modal-input" type="text"
-                        autocomplete="off" @keyup.enter="createImageModalSubmit" />
-                    <label class=""create-image-modal-label" for="image-tags-input">Image Tags </label>
-                    
-                    <div class="create-image-modal-actions">
-                        <button type="button" class="create-image-modal-button secondary"
-                            @click="closeImageCreateModal">Cancel</button>
-                        <button type="button" class="create-image-modal-button primary" @click="createImageModalSubmit">Create</button>
+        <div v-if="isDeleteModalOpen" class="modal-backdrop" @click.self="closeDeleteModal">
+            <div class="modal-shell" role="dialog" aria-modal="true" aria-label="Delete confirmation">
+                <h3 class="modal-title">Delete {{ deleteModalTargetType }}</h3>
+                <p class="modal-delete-message">
+                    Are you sure you want to delete "{{ deleteModalTargetName }}"?
+                    This action cannot be undone.
+                </p>
+                <div class="modal-actions">
+                    <button type="button" class="modal-button secondary" @click="closeDeleteModal">Cancel</button>
+                    <button type="button" class="modal-button primary" @click="confirmDelete">Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="isTagCreateModalOpen || isTagEditModalOpen" class="modal-backdrop" @click.self="closeTagModal">
+            <div class="modal-shell" role="dialog" aria-modal="true" aria-label="Create tag">
+                <h3 class="modal-title">{{ editingGalleryId ? 'Edit Tag' : 'Create Tag' }}</h3>
+                <div class="modal-form">
+                    <div class="modal-field">
+                        <label class="modal-label" for="tag-name-input">Tag name</label>
+                        <input id="tag-name-input" v-model="editingGalleryName" class="modal-input" type="text"
+                            autocomplete="off" @keyup.enter="saveTagName" />
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="modal-button secondary"
+                        @click="closeTagModal">Cancel</button>
+                    <button type="button" class="modal-button primary" @click="saveTagName">{{ editingGalleryId ? 'Save' : 'Create' }}</button>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="isPhotoCreateModalOpen || isPhotoEditModalOpen" class="modal-backdrop" @click.self="closePhotoModal">
+            <div class="modal-shell" role="dialog" aria-modal="true" aria-label="Create photo">
+                <h3 class="modal-title">Create Photo</h3>
+                <form class="modal-form" @submit.prevent="createImageModalSubmit">
+                    <div class="photo-upload-card" @click="openPhotoPicker">
+                        <input ref="photoUploadInput" class="photo-upload-input" type="file" accept="image/*" @change="handlePhotoFileSelection" />
+                        <div v-if="photoPreviewUrl" class="photo-upload-preview">
+                            <img :src="photoPreviewUrl" alt="Selected photo preview" />
+                        </div>
+                        <div v-else class="photo-upload-placeholder">
+                            <span class="photo-upload-plus">+</span>
+                            <span>Add photo</span>
+                        </div>
+                    </div>
+                    <div class="modal-field">
+                        <label class="modal-label" for="photo-title-input">Photo title</label>
+                        <input id="photo-title-input" v-model="createImageFormData.photoTitle" class="modal-input" type="text" autocomplete="off" />
+                    </div>
+                    <div class="modal-field">
+                        <label class="modal-label" for="photo-description-input">Description</label>
+                        <textarea id="photo-description-input" v-model="createImageFormData.photoDescription" class="modal-textarea" autocomplete="off"></textarea>
+                    </div>
+                    <div class="modal-field">
+                        <label class="modal-label" for="photo-location-input">Location</label>
+                        <input id="photo-location-input" v-model="createImageFormData.photoLocation" class="modal-input" type="text" autocomplete="off" />
+                    </div>
+                    <div class="modal-field">
+                        <label class="modal-label" for="photo-tags-input">Tags</label>
+                        <select id="photo-tags-input" v-model="createImageFormData.photoTags" class="modal-select">
+                            <option value="">Select a tag</option>
+                            <option v-for="tag in tags" :key="tag.tagId" :value="tag.tagId">
+                                {{ tag.tagName }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="modal-field">
+                        <label class="modal-label" for="photo-gallery-select">Gallery</label>
+                        <select id="photo-gallery-select" v-model="createImageFormData.photoSetId" class="modal-select">
+                            <option value="">Select a gallery</option>
+                            <option v-for="gallery in gallerys" :key="gallery.photoSetId" :value="gallery.photoSetId">
+                                {{ gallery.photoSetTitle }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="modal-button secondary" @click="closePhotoModal">Cancel</button>
+                        <button type="submit" class="modal-button primary">Create</button>
                     </div>
                 </form>
             </div>
-        </div> -->
+        </div>
 
     </section>
 </template>
@@ -286,6 +496,12 @@ const closeImageCreateModal = () => {
     margin: 0 0 0.75rem;
 }
 
+.modal-delete-message {
+    margin: 0 0 1rem;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.5;
+}
+
 .accordion-loading-state {
     display: flex;
     align-items: center;
@@ -314,18 +530,98 @@ const closeImageCreateModal = () => {
     box-shadow: 0 22px 45px rgba(0, 0, 0, 0.45);
 }
 
+.modal-shell {
+    width: min(100%, 32rem);
+    border: 1px solid rgba(232, 217, 181, 0.35);
+    border-radius: 0.95rem;
+    background: #141414;
+    color: #ffffff;
+    padding: 1rem;
+    box-shadow: 0 22px 45px rgba(0, 0, 0, 0.45);
+}
+
 .modal-title {
     margin: 0 0 0.75rem;
     font-size: 1.15rem;
 }
 
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.modal-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
 .modal-label {
     display: block;
-    margin-bottom: 0.45rem;
     font-size: 0.84rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: rgba(232, 217, 181, 0.9);
+}
+
+.photo-upload-card {
+    width: min(100%, 10rem);
+    aspect-ratio: 1;
+    border: 1px dashed rgba(232, 217, 181, 0.45);
+    border-radius: 0.9rem;
+    background: rgba(255, 255, 255, 0.05);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    overflow: hidden;
+    margin-bottom: 0.25rem;
+}
+
+.photo-upload-input {
+    display: none;
+}
+
+.photo-upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    color: rgba(232, 217, 181, 0.9);
+    font-size: 0.9rem;
+}
+
+.photo-upload-plus {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.photo-upload-preview {
+    width: 100%;
+    height: 100%;
+}
+
+.photo-upload-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.modal-input,
+.modal-textarea,
+.modal-select {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid rgba(232, 217, 181, 0.28);
+    border-radius: 0.6rem;
+    padding: 0.7rem 0.8rem;
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+.modal-textarea {
+    min-height: 6rem;
+    resize: vertical;
 }
 
 .modal-actions {

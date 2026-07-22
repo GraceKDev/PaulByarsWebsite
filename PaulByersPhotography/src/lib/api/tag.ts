@@ -1,7 +1,7 @@
 import type { TagDTO, TagInterface } from "../types/PhotographyPhotoInterface";
 
 export async function createTag(tagDTO: TagDTO, errorMessage: { message: string }): Promise<boolean> {
-    return fetch(`${import.meta.env.VITE_BACKEND_URL}/Api/Tag/Create`, {
+    return fetch(`${import.meta.env.VITE_BACKEND_URL}/Api/Tags/Create`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         credentials: "include",
@@ -17,8 +17,8 @@ export async function createTag(tagDTO: TagDTO, errorMessage: { message: string 
     })
 }
 
-export async function getTags(errorMessage: { message: string }): Promise<TagInterface[]> {
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/Api/Tag/GetAll`, {
+export async function getAllTags(errorMessage: { message: string }): Promise<TagInterface[]> {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/Api/Tags/GetAll`, {
         method: "GET",
         headers: { "content-type": "application/json" },
     });
@@ -37,7 +37,7 @@ export async function getTags(errorMessage: { message: string }): Promise<TagInt
 }
 
 export async function putTag(tagDTO: TagDTO, tagId: string, errorMessage: { message: string }): Promise<boolean> {
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/Api/Tag/Update/${tagId}`, {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/Api/Tags/Update/${tagId}`, {
         method: "PUT",
         headers: { "content-type": "application/json" },
         credentials: "include",
@@ -54,7 +54,7 @@ export async function putTag(tagDTO: TagDTO, tagId: string, errorMessage: { mess
     return response
 }
 export async function deleteTag(tagId: string, errorMessage: { message: string }): Promise<boolean> {
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/Api/Tag/Delete/${tagId}`, {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/Api/Tags/Delete/${tagId}`, {
         method: "DELETE",
         headers: { "content-type": "application/json" },
         credentials: "include",

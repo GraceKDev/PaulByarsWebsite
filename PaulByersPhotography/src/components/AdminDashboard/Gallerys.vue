@@ -46,8 +46,14 @@ const onCreateGallery = () => {
                 <div v-for="gallery in props.gallerys" :key="gallery.photoSetId" class="gallery-item">
                     <h4 class="galleryPhotoSetTitle">{{ gallery.photoSetTitle }}</h4>
                     <div class="gallery-item-button-container"> 
-                        <button class="gallery-item-button" type="button" @click="onEditGalleryName(gallery)">Edit</button>
-                        <button class="gallery-item-button delete" type="button" @click="onDeleteGallery(gallery)">Delete</button>
+                        <button class="gallery-item-button" type="button" @click="onEditGalleryName(gallery)" aria-label="Edit gallery">
+                            <span class="action-icon" aria-hidden="true">✎</span>
+                            <span>Edit</span>
+                        </button>
+                        <button class="gallery-item-button delete" type="button" @click="onDeleteGallery(gallery)" aria-label="Delete gallery">
+                            <span class="action-icon" aria-hidden="true">🗑</span>
+                            <span>Delete</span>
+                        </button>
                     </div>
                 </div>
             </template>
@@ -93,7 +99,15 @@ const onCreateGallery = () => {
     font-weight: 600;
     letter-spacing: 0.04em;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
     transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.action-icon {
+    font-size: 0.95rem;
+    line-height: 1;
 }
 
 .gallery-item-button-container {

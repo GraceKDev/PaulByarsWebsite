@@ -8,6 +8,10 @@ const props = defineProps<{
     errorMessage?:string
 }>()
 
+const emit = defineEmits<{
+    (event: 'create-photo'): void
+}>()
+
 console.log('props.galleries:', props.galleries)
 const selectedPhotoSet = ref(props.galleries.length > 0 ? props.galleries[0]?.photoSetTitle : 'Select a photo set')
 
@@ -19,12 +23,18 @@ const selectedPhotoSetLabel = computed(() => {
 
     return 'Select a photo set'
 })
+
+const onCreatePhoto = () => {
+    emit('create-photo')
+}
 </script>
 
 <template>
     <div class="photo-gallery">
         <div class="photo-gallery-header">
-            <h3>Photo Gallery Config</h3>
+            <div class="photo-gallery-header-top">
+                <h3>Photo Gallery Config</h3>
+            </div>
             <p>Select a gallery to edit and update its settings.</p>
             <p>{{props.errorMessage}}</p>
         </div>
@@ -41,6 +51,10 @@ const selectedPhotoSetLabel = computed(() => {
                 </select>
             </div>
             <p class="photo-set-selected">Selected: {{ selectedPhotoSetLabel }}</p>
+            <button class="photo-add-button" type="button" @click="onCreatePhoto">
+                <span class="photo-add-icon" aria-hidden="true">+</span>
+                <span>Add photo</span>
+            </button>
             <div class="photo-set-body">
                 <PhotoGalleryGrid :photos="photos" />
             </div>
@@ -51,6 +65,44 @@ const selectedPhotoSetLabel = computed(() => {
 <style scoped>
 .photo-gallery {
     padding: 1rem;
+}
+
+.photo-gallery-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.photo-add-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    width: 100%;
+    max-width: 14rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid rgba(0, 255, 0, 0.45);
+    border-radius: 0.8rem;
+    background: rgba(0, 255, 0, 0.16);
+    color: #00ff00;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: transform 0.18s ease, background-color 0.18s ease;
+}
+
+.photo-add-button:hover,
+.photo-add-button:focus-visible {
+    transform: translateY(-1px);
+    background: rgba(0, 255, 0, 0.24);
+    outline: none;
+}
+
+.photo-add-icon {
+    font-size: 1.2rem;
+    line-height: 1;
 }
 
 .photo-set-body {

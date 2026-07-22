@@ -7,8 +7,7 @@ export async function createGallery(photoSetDTO: PhotoSetDTO, errorMessage: { me
         credentials: "include",
         body: JSON.stringify(photoSetDTO),
     }).then((response) => {
-        console.log('Response status:', response.status);
-        console.log(response.ok);
+
         if (!response.ok) {
             errorMessage.message = `${"Error: " + response.status}`;
             return response.ok;
@@ -47,8 +46,6 @@ export async function putGallery(photoSetDTO: PhotoSetDTO, photoSetId: string, e
         credentials: "include",
         body: JSON.stringify(photoSetDTO),
     }).then((response) => {
-        console.log('Response status:', response.status);
-        console.log(response.ok);
         if (!response.ok) {
             errorMessage.message = `${"Error: " + response.status}`;
             return response.ok;

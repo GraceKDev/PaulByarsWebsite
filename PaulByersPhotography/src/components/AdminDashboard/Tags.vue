@@ -44,11 +44,16 @@ const onCreateTag = () => {
                 <p>No tags available.</p>
             </template>
             <template v-else>
-                <div v-for="tag in props.tags" :key="tag.TagId" class="gallery-item">
-                    <h4 class="galleryPhotoSetTitle">{{ tag.TagTitle }}</h4>
+                <div v-for="tag in props.tags" :key="tag.tagId" class="gallery-item">
+                    <h4 class="galleryPhotoSetTitle">{{ tag.tagName }}</h4>
                     <div class="gallery-item-button-container"> 
-                        <button class="gallery-item-button" type="button" @click="onEditTagName(tag)">Edit</button>
-                        <button class="gallery-item-button delete" type="button" @click="onDeleteTag(tag)">Delete</button>
+                        <button class="gallery-item-button" type="button" @click="onEditTagName(tag)" aria-label="Edit tag">
+                            <span class="action-icon" aria-hidden="true">✎</span>
+                        </button>
+                        <button class="gallery-item-button delete" type="button" @click="onDeleteTag(tag)" aria-label="Delete tag">
+                            <span class="action-icon" aria-hidden="true">🗑</span>
+                            
+                        </button>
                     </div>
                 </div>
             </template>
@@ -94,7 +99,15 @@ const onCreateTag = () => {
     font-weight: 600;
     letter-spacing: 0.04em;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
     transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.action-icon {
+    font-size: 0.95rem;
+    line-height: 1;
 }
 
 .gallery-item-button-container {

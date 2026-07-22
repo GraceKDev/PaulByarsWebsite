@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const props = defineProps<{
     title: string
+    subTitle?: string
     active: boolean
     setActive: (active: boolean) => void
     content?: string
@@ -13,8 +14,13 @@ const props = defineProps<{
     <div class="accordion">
         <button class="accordion-trigger" type="button" @click="props.setActive(!props.active)"
             :aria-expanded="props.active">
-            <h3 class="accordion-title">{{ props.title }}</h3>
-            
+            <div class="accordion-title-container">
+                <div class="accordion-title-text-container">
+                    <h3 class="accordion-title">{{ props.title }}</h3>
+                    <span class="accordion-divider"> | </span>
+                </div>
+                <p class="accordion-subtitle">{{ props.subTitle }}</p>
+            </div>
             <div class="accordion-chevron-container">
                 <svg class="accordion-chevron" :class="{ 'is-open': props.active }" width="18" height="18"
                     viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -40,9 +46,9 @@ const props = defineProps<{
 
 <style scoped>
 .accordion-trigger {
-    border: 1px solid rgba(232, 217, 181, 0.2);
+    border: 3px solid rgba(232, 217, 181, 0.2);
     width: 100%;
-    padding: 0.5rem;
+    padding: 1.5rem;
     background: transparent;
     color: inherit;
     display: flex;
@@ -53,22 +59,47 @@ const props = defineProps<{
     text-align: left;
 }
 
+.accordion-title-container {
+    display: flex;
+    gap: 0.5rem;
+}
+.accordion-divider {
+    color: rgba(232, 217, 181, 0.8);
+    font-size: 2rem;
+}
+.accordion-title-text-container {
+    display: flex;
+    align-items: center;
+    gap:1rem;
+    justify-content:space-between;
+    min-width: 5rem;
+}
 .accordion-title {
     margin: 0;
     font-size: 1.1rem;
     font-weight: 500;
 }
 
+.accordion-subtitle {
+    margin: 0;
+    font-size: 0.9rem;
+    color: rgba(232, 217, 181, 0.8);
+    display: flex;
+    align-items: center;
+}
+
 .accordion-chevron {
     flex-shrink: 0;
     transition: transform 0.28s ease;
 }
+
 .accordion-chevron-container {
     display: flex;
     align-items: center;
     justify-content: center;
-    border:1px solid rgba(232, 217, 181, 0.2);
+    border: 1px solid rgba(232, 217, 181, 0.2);
 }
+
 .accordion-chevron.is-open {
     transform: rotate(180deg);
 }
