@@ -31,8 +31,8 @@ const onCreateGallery = () => {
 <template>
     <div class="gallerys">
         <div class="gallerys-header">
-            <h3> Photo Gallerys Configuration </h3>
-            <p> Select a gallery to configure its settings </p>
+            <h3> Galleries Configuration </h3>
+            <p> Create, rename, and delete photo galleries </p>
             <p> {{ props.errorMessage }}</p>
         </div>
         <div class="gallerys-list">

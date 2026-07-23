@@ -4,11 +4,20 @@ import type { PhotographyPhotoInterface } from '../../lib/types/PhotographyPhoto
 const props = defineProps<{
     photos: Array<PhotographyPhotoInterface>
 }>()
+
+const emit = defineEmits<{
+    (event: 'create-photo'): void
+    (event: 'edit-photo', photo: PhotographyPhotoInterface): void
+}>()
+
+const editIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>'
+const deleteIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>'
+
+const selectedPhoto = ref<PhotographyPhotoInterface | null>(null)
+
 const editMode = ref(true)
 const deleteModal = ref(false)
 const photoModal = ref(false)
-
-const selectedPhoto = ref<PhotographyPhotoInterface | null>(null)
 
 const openDeleteModal = (photo: PhotographyPhotoInterface) => {
     selectedPhoto.value = photo
@@ -27,7 +36,7 @@ const deletePhoto = (photo: PhotographyPhotoInterface) => {
 
 const openPhotoModal = (photo: PhotographyPhotoInterface) => {
     photoModal.value = true
-    selectedPhoto.value = photo 
+    selectedPhoto.value = photo
 }
 const closePhotoModal = () => {
     photoModal.value = false
@@ -39,7 +48,7 @@ const closePhotoModal = () => {
 
 <template>
     <div class="photo-gallery-grid">
-        <div v-if="editMode" class="photo-gallery-item add-photo">
+        <div v-if="editMode" class="photo-gallery-item add-photo" @click="emit('create-photo')">
             <div class="add-photo-icon">
                 <p class="add-photo-text"> Add Photo</p>
             </div>
@@ -48,13 +57,9 @@ const closePhotoModal = () => {
             <div class="photo-gallery-item-content">
                 <div class="photo-gallery-item-overlay">
 
-                    <div v-if="editMode" class="photo-gallery-delete" @click.stop="openDeleteModal(photo)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="feather feather-x">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
+                    <div v-if="editMode" class="photo-gallery-actions">
+                        <div class="photo-gallery-edit" @click.stop="emit('edit-photo', photo)" v-html="editIcon"></div>
+                        <div class="photo-gallery-delete" @click.stop="openDeleteModal(photo)" v-html="deleteIcon"></div>
                     </div>
                     <img @click="openPhotoModal(photo)" :src="photo.photoUrl" :alt="photo.photoAlt" />
                 </div>
@@ -68,7 +73,7 @@ const closePhotoModal = () => {
 
         <div v-if="deleteModal && selectedPhoto" class="photo-inspect-modal" @click="closeDeleteModal">
             <div class="photo-inspect-modal-content" @click.stop>
-                <p>Are you sure you want to delete this photo?</p>
+                <p>Are you sure you want to delete "{{ selectedPhoto.photoTitle }}"?</p>
                 <button class="cancel-button" @click="closeDeleteModal">Cancel</button>
                 <button class="delete-button" @click="deletePhoto(selectedPhoto)">Delete</button>
             </div>
@@ -80,18 +85,6 @@ const closePhotoModal = () => {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1rem;
-}
-
-@media (max-width: 1024px) {
-    .photo-gallery-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-
-@media (max-width: 640px) {
-    .photo-gallery-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
 }
 
 img {
@@ -131,22 +124,40 @@ img {
     cursor: pointer;
 }
 
-.photo-gallery-delete {
+.photo-gallery-actions {
     position: absolute;
     top: 0.2rem;
     right: 0.2rem;
+    display: flex;
+    gap: 0.25rem;
+    z-index: 5;
+}
+
+.photo-gallery-edit,
+.photo-gallery-delete {
     width: 1.5rem;
     height: 1.5rem;
-    background-color: rgba(231, 0, 0, 1);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border: 1px solid rgb(112, 1, 1);
+    border: 1px solid;
     transition: transform 0.2s ease;
+    color: #fff;
 }
 
+.photo-gallery-edit {
+    background-color: rgba(0, 107, 204, 1);
+    border-color: rgb(0, 69, 138);
+}
+
+.photo-gallery-delete {
+    background-color: rgba(231, 0, 0, 1);
+    border-color: rgb(112, 1, 1);
+}
+
+.photo-gallery-edit:hover,
 .photo-gallery-delete:hover {
     transform: scale(1.2);
 }
@@ -163,19 +174,23 @@ img {
     justify-content: center;
     z-index: 1000;
 }
+
 .photo-inspect-modal-content {
     max-width: 90%;
     max-height: 90%;
 }
+
 .photo-inspect-modal-content img {
     width: 100%;
     height: auto;
 }
+
 .photo-inspect-modal-content p {
     color: #fff;
     font-size: 1.2rem;
     margin-bottom: 1rem;
 }
+
 .cancel-button,
 .delete-button {
     padding: 0.5rem 1rem;
@@ -186,17 +201,21 @@ img {
     border-radius: 0.25rem;
     transition: background-color 0.2s ease, color 0.2s ease;
 }
+
 .cancel-button {
     background-color: #ccc;
     color: #000;
 }
+
 .cancel-button:hover {
     background-color: #bbb;
 }
+
 .delete-button {
     background-color: #e70000;
     color: #fff;
 }
+
 .delete-button:hover {
     background-color: #c60000;
 }

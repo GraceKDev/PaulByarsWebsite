@@ -32,8 +32,8 @@ const onCreateTag = () => {
 <template>
     <div class="gallerys">
         <div class="gallerys-header">
-            <h3> Photo Gallerys Configuration </h3>
-            <p> Select a gallery to configure its settings </p>
+            <h3> Tags Configuration </h3>
+            <p> Create and manage tags for categorizing photos </p>
             <p> {{ props.errorMessage }}</p>
         </div>
         <div class="gallerys-list">

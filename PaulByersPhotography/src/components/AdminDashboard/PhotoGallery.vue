@@ -10,6 +10,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (event: 'create-photo'): void
+    (event: 'edit-photo', photo: PhotographyPhotoInterface): void
 }>()
 
 console.log('props.galleries:', props.galleries)
@@ -27,15 +28,16 @@ const selectedPhotoSetLabel = computed(() => {
 const onCreatePhoto = () => {
     emit('create-photo')
 }
+
 </script>
 
 <template>
     <div class="photo-gallery">
         <div class="photo-gallery-header">
             <div class="photo-gallery-header-top">
-                <h3>Photo Gallery Config</h3>
+                <h3>Photo Gallery Configuration</h3>
             </div>
-            <p>Select a gallery to edit and update its settings.</p>
+            <p>Select a gallery below to manage its photos.</p>
             <p>{{props.errorMessage}}</p>
         </div>
         <div class="photo-gallery-content">
@@ -51,12 +53,9 @@ const onCreatePhoto = () => {
                 </select>
             </div>
             <p class="photo-set-selected">Selected: {{ selectedPhotoSetLabel }}</p>
-            <button class="photo-add-button" type="button" @click="onCreatePhoto">
-                <span class="photo-add-icon" aria-hidden="true">+</span>
-                <span>Add photo</span>
-            </button>
+           
             <div class="photo-set-body">
-                <PhotoGalleryGrid :photos="photos" />
+                <PhotoGalleryGrid :photos="photos" @create-photo="emit('create-photo')" @edit-photo="(photo) => emit('edit-photo', photo)" />
             </div>
         </div>
     </div>

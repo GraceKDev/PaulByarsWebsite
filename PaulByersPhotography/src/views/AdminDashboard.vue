@@ -4,10 +4,10 @@ import Accordion from '../components/Globals/Accordion.vue'
 import PhotoGallery from '../components/AdminDashboard/PhotoGallery.vue';
 import Gallerys from '../components/AdminDashboard/Gallerys.vue';
 import Tags from '../components/AdminDashboard/Tags.vue';
-import { tempPhotos } from '../lib/temp/TemPhotos';
 import type { PhotographyPhotoInterface, PhotoSetInterface, TagInterface } from '../lib/types/PhotographyPhotoInterface';
 import { createGallery, getAllGallery, putGallery } from '../lib/api/photoset.ts';
 import { createTag, getAllTags, putTag } from '../lib/api/tag.ts';
+import { getAllPhotos } from '../lib/api/photo.ts';
 
 type AdminAccordionKey = 'photo-gallery' | 'photo-set-creations' | 'tags'
 type DeleteModalTargetType = 'gallery' | 'tag' | 'photo'
@@ -35,12 +35,13 @@ const photoUploadInput = ref<HTMLInputElement | null>(null)
 const activeAccordion = ref<AdminAccordionKey | null>(null)
 const gallerys = ref<PhotoSetInterface[]>([])
 const tags = ref<TagInterface[]>([])
-const photos = ref<PhotographyPhotoInterface[]>(tempPhotos.map((photo) => ({ ...photo })))
+const photos = ref<PhotographyPhotoInterface[]>([])
 const isAccordionLoading = ref(true)
 
 
 onMounted(async () => {
     await refreshGalleries()
+    await refreshPhotos()
     await refreshTags()
 })
 const isPhotoCreateModalOpen = ref(false)
@@ -78,6 +79,18 @@ const refreshGalleries = async () => {
         gallerys.value = await getAllGallery(photoGalleryErrorMessage)
     } catch (error) {
         photoGalleryErrorMessage.message = 'Unable to load galleries.'
+        console.error(error)
+    } finally {
+        isAccordionLoading.value = false
+    }
+}
+
+const refreshPhotos = async () => {
+    isAccordionLoading.value = true
+    try {
+        photos.value = await getAllPhotos(photosErrorMessage)
+    } catch (error) {
+        photosErrorMessage.message = 'Unable to load photos.'
         console.error(error)
     } finally {
         isAccordionLoading.value = false
@@ -313,7 +326,7 @@ const confirmDelete = () => {
                             :loading="isAccordionLoading"
                             loading-label="Loading photo gallery...">
                             <PhotoGallery :error-message="photosErrorMessage.message" :galleries="gallerys"
-                                :photos="photos" @create-photo="openPhotoCreateModal" />
+                                :photos="photos" @create-photo="openPhotoCreateModal" @edit-photo="openPhotoEditModal" />
                         </Accordion>
                         <template #fallback>
                             <div class="accordion-loading-state">
@@ -397,9 +410,9 @@ const confirmDelete = () => {
 
         <div v-if="isPhotoCreateModalOpen || isPhotoEditModalOpen" class="modal-backdrop" @click.self="closePhotoModal">
             <div class="modal-shell" role="dialog" aria-modal="true" aria-label="Create photo">
-                <h3 class="modal-title">Create Photo</h3>
+                <h3 class="modal-title">{{ isPhotoCreateModalOpen ? 'Create Photo' : 'Edit Photo' }}</h3>
                 <form class="modal-form" @submit.prevent="createImageModalSubmit">
-                    <div class="photo-upload-card" @click="openPhotoPicker">
+                    <div v-if="isPhotoCreateModalOpen" class="photo-upload-card" @click="openPhotoPicker">
                         <input ref="photoUploadInput" class="photo-upload-input" type="file" accept="image/*" @change="handlePhotoFileSelection" />
                         <div v-if="photoPreviewUrl" class="photo-upload-preview">
                             <img :src="photoPreviewUrl" alt="Selected photo preview" />
@@ -441,7 +454,7 @@ const confirmDelete = () => {
                     </div>
                     <div class="modal-actions">
                         <button type="button" class="modal-button secondary" @click="closePhotoModal">Cancel</button>
-                        <button type="submit" class="modal-button primary">Create</button>
+                        <button type="submit" class="modal-button primary">{{ isPhotoEditModalOpen ? 'Save' : 'Create' }}</button>
                     </div>
                 </form>
             </div>

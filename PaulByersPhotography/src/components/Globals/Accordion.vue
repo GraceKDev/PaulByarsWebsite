@@ -45,11 +45,16 @@ const props = defineProps<{
 </template>
 
 <style scoped>
+.accordion {
+    margin-bottom: 0.75rem;
+}
+
 .accordion-trigger {
-    border: 3px solid rgba(232, 217, 181, 0.2);
+    border: 1px solid rgba(232, 217, 181, 0.25);
+    border-radius: 0.5rem;
     width: 100%;
-    padding: 1.5rem;
-    background: transparent;
+    padding: 1.25rem 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
     color: inherit;
     display: flex;
     align-items: center;
@@ -57,35 +62,60 @@ const props = defineProps<{
     gap: 1rem;
     cursor: pointer;
     text-align: left;
+    transition: background-color 0.22s ease, border-color 0.22s ease;
+}
+
+.accordion-trigger:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(232, 217, 181, 0.4);
 }
 
 .accordion-title-container {
     display: flex;
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
 }
-.accordion-divider {
-    color: rgba(232, 217, 181, 0.8);
-    font-size: 2rem;
-}
+
 .accordion-title-text-container {
     display: flex;
     align-items: center;
-    gap:1rem;
-    justify-content:space-between;
-    min-width: 5rem;
+    gap: 0.75rem;
 }
+
 .accordion-title {
     margin: 0;
-    font-size: 1.1rem;
-    font-weight: 500;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #e8d9b5;
+}
+
+.accordion-divider {
+    color: rgba(232, 217, 181, 0.35);
+    font-size: 1.2rem;
+    line-height: 1;
 }
 
 .accordion-subtitle {
     margin: 0;
-    font-size: 0.9rem;
-    color: rgba(232, 217, 181, 0.8);
+    font-size: 0.85rem;
+    color: rgba(232, 217, 181, 0.6);
+}
+
+.accordion-chevron-container {
     display: flex;
     align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: rgba(232, 217, 181, 0.08);
+    flex-shrink: 0;
+    transition: background-color 0.22s ease;
+}
+
+.accordion-trigger:hover .accordion-chevron-container {
+    background: rgba(232, 217, 181, 0.14);
 }
 
 .accordion-chevron {
@@ -93,21 +123,18 @@ const props = defineProps<{
     transition: transform 0.28s ease;
 }
 
-.accordion-chevron-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(232, 217, 181, 0.2);
-}
-
 .accordion-chevron.is-open {
     transform: rotate(180deg);
 }
 
 .accordion-content {
-    padding: 0 0 1rem;
+    padding: 1.25rem 1.5rem 1.5rem;
     overflow: hidden;
-    height: 100%;
+    border-left: 1px solid rgba(232, 217, 181, 0.15);
+    border-right: 1px solid rgba(232, 217, 181, 0.15);
+    border-bottom: 1px solid rgba(232, 217, 181, 0.15);
+    border-radius: 0 0 0.5rem 0.5rem;
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .accordion-loading {
@@ -142,6 +169,6 @@ const props = defineProps<{
 .accordion-content-transition-enter-from,
 .accordion-content-transition-leave-to {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(-4px);
 }
 </style>

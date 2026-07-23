@@ -34,4 +34,14 @@ export interface TagDTO  {
 export interface PhotoSetDTO {
     photoSetTitle:string;
 }
-    
+
+export interface PhotoDTO {
+    S3Key: string;
+    PhotoUrl: string;
+    PhotoTitle: string;
+    PhotoDescription: string;
+    PhotoUploadDate: string;
+    PhotoLocation: string;
+    TagIds: number[];
+    PhotoSetId: number;
+}
