@@ -2,10 +2,12 @@
 import { computed, ref } from 'vue'
 import PhotoGalleryGrid from './PhotoGalleryGrid.vue'
 import type { PhotographyPhotoInterface, PhotoSetInterface } from '../../lib/types/PhotographyPhotoInterface.ts';
+import Dropdown from '../Globals/Dropdown.vue';
 const props = defineProps<{
-    galleries: Array<PhotoSetInterface | null>
-    photos: Array<PhotographyPhotoInterface>
-    errorMessage?:string
+    galleries: PhotoSetInterface[]
+    photos: PhotographyPhotoInterface[]
+    errorMessage?: string
+    editingEnabled:boolean
 }>()
 
 const emit = defineEmits<{
@@ -17,6 +19,13 @@ const emit = defineEmits<{
 console.log('props.galleries:', props.galleries)
 const selectedPhotoSet = ref(props.galleries.length > 0 ? props.galleries[0]?.photoSetTitle : 'Select a photo set')
 
+const galleryOptions = computed(() =>
+  props.galleries.map((g) => ({
+    label: g.photoSetTitle,
+    value: g.photoSetTitle,
+  }))
+);
+
 const selectedPhotoSetLabel = computed(() => {
     const gallery = props.galleries.find(g => g?.photoSetTitle === selectedPhotoSet.value)
     if (gallery) {
@@ -26,9 +35,7 @@ const selectedPhotoSetLabel = computed(() => {
     return 'Select a photo set'
 })
 
-const onCreatePhoto = () => {
-    emit('create-photo')
-}
+
 
 </script>
 
@@ -39,24 +46,17 @@ const onCreatePhoto = () => {
                 <h3>Photo Gallery Configuration</h3>
             </div>
             <p>Select a gallery below to manage its photos.</p>
-            <p>{{props.errorMessage}}</p>
+            <p>{{ props.errorMessage }}</p>
         </div>
         <div class="photo-gallery-content">
             <div class="photo-set-selector-container">
-                <select v-model="selectedPhotoSet" class="photo-set-selector">
-                    <option
-                        v-for="gallery in galleries"
-                        :key="gallery?.photoSetId"
-                        :value="gallery?.photoSetTitle"
-                    >
-                        {{ gallery?.photoSetTitle }}
-                    </option>
-                </select>
+                <Dropdown id="filter" label="Gallerys" :options="galleryOptions" v-model="selectedPhotoSet" />
             </div>
             <p class="photo-set-selected">Selected: {{ selectedPhotoSetLabel }}</p>
-           
             <div class="photo-set-body">
-                <PhotoGalleryGrid :photos="photos" @create-photo="emit('create-photo')" @edit-photo="(photo) => emit('edit-photo', photo)" @delete-photo="(photo) => emit('delete-photo', photo)" />
+                <PhotoGalleryGrid :photos="photos" :editing-enabled="props.editingEnabled" @create-photo="emit('create-photo')"
+                    @edit-photo="(photo) => emit('edit-photo', photo)"
+                    @delete-photo="(photo) => emit('delete-photo', photo)" />
             </div>
         </div>
     </div>
@@ -109,34 +109,14 @@ const onCreatePhoto = () => {
     margin-top: 1.25rem;
 }
 
-.photo-set-selected {
-    margin: 0.75rem 0 0;
-    text-align: right;
-    color: rgba(232, 217, 181, 0.9);
-    font-size: 0.95rem;
-}
+
 
 .photo-set-selector-container {
     display: flex;
     justify-content: flex-end;
 }
 
-.photo-set-selector {
-    min-width: 14rem;
-    padding: 0.7rem 1rem;
-    color: #000;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    cursor: pointer;
-    transition: border-color 0.22s ease, background-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
-}
 
-.photo-set-selector:hover,
-.photo-set-selector:focus-visible {
-    border-color: rgba(232, 217, 181, 0.9);
-    box-shadow: 0 0 0 3px rgba(232, 217, 181, 0.2);
-    outline: none;
-    transform: translateY(-1px);
-}
 
 p {
     margin: 0;

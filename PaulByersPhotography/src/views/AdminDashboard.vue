@@ -383,7 +383,7 @@ const confirmDelete = async () => {
                             :active="activeAccordion === 'photo-gallery'"
                             :set-active="(isOpen) => setAccordionOpen('photo-gallery', isOpen)"
                             :loading="isAccordionLoading" loading-label="Loading photo gallery...">
-                            <PhotoGallery :error-message="errorMessage.message" :galleries="gallerys" :photos="photos"
+                            <PhotoGallery :editing-enabled=true :error-message="errorMessage.message" :galleries="gallerys" :photos="photos"
                                 @create-photo="openPhotoCreateModal" @edit-photo="openPhotoEditModal"
                                 @delete-photo="openPhotoDeleteModal" />
                         </Accordion>

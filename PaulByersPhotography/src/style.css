@@ -6,17 +6,19 @@
 
 :root {
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-   
+
   font-family: var(--sans);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
 @font-face {
-    font-family: "PermanentMarker";
-    src: url('fonts/PermanentMarker-Regular.ttf');
+  font-family: "PermanentMarker";
+  src: url('fonts/PermanentMarker-Regular.ttf');
 }
+
 body {
   margin: 0;
   padding: 0;
@@ -24,18 +26,49 @@ body {
 }
 
 input {
-    width: 100%;
-    padding: 0.65rem 0.75rem;
-    background: rgba(255, 255, 255, 0.06);
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    box-sizing: border-box;
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-sizing: border-box;
 }
+
 input:focus-visible {
-    outline: none;
-    border-color: rgba(232, 217, 181, 0.95);
-    box-shadow: 0 0 0 3px rgba(232, 217, 181, 0.2);
+  outline: none;
+  border-color: rgba(232, 217, 181, 0.95);
+  box-shadow: 0 0 0 3px rgba(232, 217, 181, 0.2);
 }
+
 #app {
   width: 100%;
+}
+
+
+
+select {
+   -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: #e8d9b5 !important;
+  padding: 0.5rem;
+  min-width: 14rem;
+}
+
+select option {
+    -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #e8d9b5 !important;
+}
+
+option {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #e8d9b5 !important;
+}
+
+option:not(:checked) {
+  background-color: rgba(255, 255, 255, 0.08)
 }

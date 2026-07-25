@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import type { PhotographyPhotoInterface } from '../../lib/types/PhotographyPhotoInterface'
 const props = defineProps<{
     photos: Array<PhotographyPhotoInterface>
+    editingEnabled:boolean
 }>()
 
 const emit = defineEmits<{
@@ -13,10 +14,9 @@ const emit = defineEmits<{
 
 const editIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>'
 const deleteIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>'
-
 const selectedPhoto = ref<PhotographyPhotoInterface | null>(null)
 
-const editMode = ref(true)
+const editMode = ref(props.editingEnabled)
 const photoModal = ref(false)
 
 const openDeleteModal = (photo: PhotographyPhotoInterface) => {
@@ -45,7 +45,6 @@ const closePhotoModal = () => {
         <div v-for="photo in props.photos" :key="photo.photoId" class="photo-gallery-item">
             <div class="photo-gallery-item-content">
                 <div class="photo-gallery-item-overlay">
-
                     <div v-if="editMode" class="photo-gallery-actions">
                         <div class="photo-gallery-edit" @click.stop="emit('edit-photo', photo)" v-html="editIcon"></div>
                         <div class="photo-gallery-delete" @click.stop="openDeleteModal(photo)" v-html="deleteIcon">
