@@ -1,17 +1,60 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import {tempPhotos} from '../lib/temp/TemPhotos';
-import {tempGallerys} from '../lib/temp/TemGallery';
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+
 import PhotoGalleryGrid from '../components/AdminDashboard/PhotoGalleryGrid.vue';
+import type { PhotographyPhotoInterface, PhotoSetInterface, TagInterface } from '../lib/types/PhotographyPhotoInterface.ts';
+import { getAllTags } from '../lib/api/tag.ts';
+import { getAllPhotos } from '../lib/api/photo.ts';
+import { getAllGallery } from '../lib/api/photoset.ts';
 
 
+
+onMounted(async () => {
+  await loadItems()
+
+  document.addEventListener('click', handleDocumentClick);
+});
+
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleDocumentClick);
+});
+
+const errorMessage = reactive({
+  message: ""
+})
+
+const gallerys = ref<PhotoSetInterface[]>([])
+const tags = ref<TagInterface[]>([])
+const photos = ref<PhotographyPhotoInterface[]>([])
+const isLoading = ref(true)
 const selectedFilter = ref('all');
 const isFilterOpen = ref(false);
 const filterRoot = ref<HTMLElement | null>(null);
 
 const selectedFilterLabel = computed(
-  () => tempGallerys.find((option) => option.photoSetTitle === selectedFilter.value)?.photoSetTitle ?? 'All',
+  () =>
+    gallerys.value.find(
+      (option) => option.photoSetTitle === selectedFilter.value
+    )?.photoSetTitle ?? 'All'
 );
+
+
+const loadItems = async () => {
+  isLoading.value = true;
+  try {
+    tags.value = await getAllTags(errorMessage)
+    photos.value = await getAllPhotos(errorMessage);
+    gallerys.value = await getAllGallery(errorMessage);
+  }
+  catch (error) {
+    errorMessage.message = "Unable to load endpoint."
+    console.error(error)
+  }
+  finally {
+    isLoading.value = false;
+  }
+}
 
 const toggleFilter = () => {
   isFilterOpen.value = !isFilterOpen.value;
@@ -35,13 +78,7 @@ const handleFilterKeydown = (event: KeyboardEvent) => {
   }
 };
 
-onMounted(() => {
-  document.addEventListener('click', handleDocumentClick);
-});
 
-onBeforeUnmount(() => {
-  document.removeEventListener('click', handleDocumentClick);
-});
 
 </script>
 
@@ -63,10 +100,10 @@ onBeforeUnmount(() => {
               <span class="gallery-filter-chevron" :class="{ 'is-open': isFilterOpen }" aria-hidden="true">▾</span>
             </button>
             <ul v-if="isFilterOpen" class="gallery-filter-options" role="listbox" aria-label="Gallerys">
-              <li v-for="option in tempGallerys" :key="option.photoSetTitle">
-                <button class="gallery-filter-option" :class="{ 'is-selected': selectedFilter === option.photoSetTitle }"
-                  type="button" role="option" :aria-selected="selectedFilter === option.photoSetTitle"
-                  @click="setFilter(option.photoSetTitle)">
+              <li v-for="option in gallerys" :key="option.photoSetTitle">
+                <button class="gallery-filter-option"
+                  :class="{ 'is-selected': selectedFilter === option.photoSetTitle }" type="button" role="option"
+                  :aria-selected="selectedFilter === option.photoSetTitle" @click="setFilter(option.photoSetTitle)">
                   {{ option.photoSetTitle }}
                 </button>
               </li>
@@ -75,7 +112,7 @@ onBeforeUnmount(() => {
         </form>
       </div>
       <div class="gallery-items">
-        <PhotoGalleryGrid :photos="tempPhotos" />
+        <PhotoGalleryGrid :photos="photos" />
       </div>
     </div>
   </section>

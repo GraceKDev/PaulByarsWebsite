@@ -5,32 +5,31 @@ import PhotoGallery from '../components/AdminDashboard/PhotoGallery.vue';
 import Gallerys from '../components/AdminDashboard/Gallerys.vue';
 import Tags from '../components/AdminDashboard/Tags.vue';
 import type { PhotographyPhotoInterface, PhotoSetInterface, TagInterface } from '../lib/types/PhotographyPhotoInterface';
-import { createGallery, getAllGallery, putGallery } from '../lib/api/photoset.ts';
-import { createTag, getAllTags, putTag } from '../lib/api/tag.ts';
-import { getAllPhotos } from '../lib/api/photo.ts';
+import { createGallery, deleteGallery, getAllGallery, putGallery } from '../lib/api/photoset.ts';
+import { createTag, deleteTag, getAllTags, putTag } from '../lib/api/tag.ts';
+import { createPhoto, deletePhoto, getAllPhotos, updatePhoto } from '../lib/api/photo.ts';
+
 
 type AdminAccordionKey = 'photo-gallery' | 'photo-set-creations' | 'tags'
 type DeleteModalTargetType = 'gallery' | 'tag' | 'photo'
 
-const photoGalleryErrorMessage = reactive({
-    message: '',
-})
-const photosErrorMessage = reactive({
-    message: '',
-})
-const tagsErrorMessage = reactive({
-    message: '',
+
+
+const errorMessage = reactive({
+    message: ""
 })
 const imageFormData = reactive({
-    photoTitle:'',
-    photoDescription:'',
-    photoLocation:'',
-    photoTags: [''],
-    photoSetId:'',
+    photoData: null,
+    photoTitle: '',
+    photoDescription: '',
+    photoLocation: '',
+    photoTags: '',
+    photoSetId: '',
 })
 
 const photoPreviewUrl = ref<string | null>(null)
 const photoUploadInput = ref<HTMLInputElement | null>(null)
+const selectedPhotoFile = ref<File | null>(null)
 
 const activeAccordion = ref<AdminAccordionKey | null>(null)
 const gallerys = ref<PhotoSetInterface[]>([])
@@ -56,6 +55,7 @@ const editingPhotoId = ref<string | null>(null)
 const editingGalleryName = ref('')
 const deleteModalTargetType = ref<DeleteModalTargetType>('gallery')
 const deleteModalTargetName = ref('')
+const deleteModalTargetId = ref('')
 
 const setAccordionOpen = (key: AdminAccordionKey, isOpen: boolean) => {
     activeAccordion.value = isOpen ? key : null
@@ -64,9 +64,9 @@ const setAccordionOpen = (key: AdminAccordionKey, isOpen: boolean) => {
 const refreshTags = async () => {
     isAccordionLoading.value = true
     try {
-        tags.value = await getAllTags(tagsErrorMessage)
+        tags.value = await getAllTags(errorMessage)
     } catch (error) {
-        tagsErrorMessage.message = 'Unable to load tags.'
+        errorMessage.message = 'Unable to load tags.'
         console.error(error)
     } finally {
         isAccordionLoading.value = false
@@ -76,9 +76,9 @@ const refreshTags = async () => {
 const refreshGalleries = async () => {
     isAccordionLoading.value = true
     try {
-        gallerys.value = await getAllGallery(photoGalleryErrorMessage)
+        gallerys.value = await getAllGallery(errorMessage)
     } catch (error) {
-        photoGalleryErrorMessage.message = 'Unable to load galleries.'
+        errorMessage.message = 'Unable to load galleries.'
         console.error(error)
     } finally {
         isAccordionLoading.value = false
@@ -88,20 +88,24 @@ const refreshGalleries = async () => {
 const refreshPhotos = async () => {
     isAccordionLoading.value = true
     try {
-        photos.value = await getAllPhotos(photosErrorMessage)
+        photos.value = await getAllPhotos(errorMessage)
     } catch (error) {
-        photosErrorMessage.message = 'Unable to load photos.'
+        errorMessage.message = 'Unable to load photos.'
         console.error(error)
     } finally {
         isAccordionLoading.value = false
     }
 }
 
-const openDeleteModal = (targetType: DeleteModalTargetType, itemId: string | null, itemName: string) => {
+const openDeleteModal = (targetType: DeleteModalTargetType, itemId: string, itemName: string) => {
     deleteModalTargetType.value = targetType
     deleteModalTargetName.value = itemName
-    editingGalleryId.value = itemId
+    deleteModalTargetId.value = itemId
     isDeleteModalOpen.value = true
+}
+
+const openPhotoDeleteModal = (photo: PhotographyPhotoInterface) => {
+    openDeleteModal('photo', photo.photoId, photo.photoTitle)
 }
 
 const openGalleryDeleteModal = (gallery: PhotoSetInterface) => {
@@ -139,7 +143,7 @@ const saveGalleryName = async () => {
         return
     }
 
-    const response = await putGallery({ photoSetTitle: trimmedName }, editingGalleryId.value, photoGalleryErrorMessage)
+    const response = await putGallery({ photoSetTitle: trimmedName }, editingGalleryId.value, errorMessage)
 
     if (response) {
         await refreshGalleries()
@@ -152,13 +156,13 @@ const createGallerySubmit = async () => {
     if (!trimmedName) {
         return
     }
-    const response = await createGallery({ photoSetTitle: trimmedName }, photoGalleryErrorMessage)
+    const response = await createGallery({ photoSetTitle: trimmedName }, errorMessage)
     if (response) {
         await refreshGalleries()
         closeGalleryCreateModal()
     }
     else {
-        console.error('Failed to create gallery:', photoGalleryErrorMessage.message)
+        console.error('Failed to create gallery:', errorMessage.message)
     }
 }
 
@@ -179,12 +183,7 @@ const openTagCreateModal = () => {
     isTagEditModalOpen.value = false
 }
 
-const closeTagModal = () => {
-    isTagCreateModalOpen.value = false
-    isTagEditModalOpen.value = false
-    editingGalleryId.value = null
-    editingGalleryName.value = ''
-}
+
 
 const saveTagName = async () => {
     const trimmedName = editingGalleryName.value.trim()
@@ -193,8 +192,8 @@ const saveTagName = async () => {
     }
 
     const response = editingGalleryId.value
-        ? await putTag({ tagName: trimmedName }, editingGalleryId.value, tagsErrorMessage)
-        : await createTag({ tagName: trimmedName }, tagsErrorMessage)
+        ? await putTag({ tagName: trimmedName }, editingGalleryId.value, errorMessage)
+        : await createTag({ tagName: trimmedName }, errorMessage)
 
     if (response) {
         await refreshTags()
@@ -208,20 +207,22 @@ const openPhotoCreateModal = () => {
     imageFormData.photoTitle = ''
     imageFormData.photoDescription = ''
     imageFormData.photoLocation = ''
-    imageFormData.photoTags = []
+    imageFormData.photoTags = ''
     imageFormData.photoSetId = ''
     photoPreviewUrl.value = null
+    selectedPhotoFile.value = null
 }
 
-const openPhotoEditModal = (photo:PhotographyPhotoInterface) => {
+const openPhotoEditModal = (photo: PhotographyPhotoInterface) => {
     editingPhotoId.value = photo.photoId;
     imageFormData.photoTitle = photo.photoTitle;
     imageFormData.photoLocation = photo.photoLocation;
-    imageFormData.photoTags = photo.photoTags;
+    imageFormData.photoTags = photo.photoTags?.[0] ?? '';
     imageFormData.photoDescription = photo.photoDescription;
     isPhotoEditModalOpen.value = true;
     isPhotoCreateModalOpen.value = false;
-
+    photoPreviewUrl.value = null;
+    selectedPhotoFile.value = null;
 }
 
 const createImageModalSubmit = async () => {
@@ -229,22 +230,39 @@ const createImageModalSubmit = async () => {
         return
     }
 
-    closePhotoModal()
+    if (isPhotoCreateModalOpen.value && !selectedPhotoFile.value) {
+        errorMessage.message = 'Please select a photo to upload'
+        return
+    }
+
+    const formData = new FormData()
+
+    if (selectedPhotoFile.value) {
+        formData.append('PhotoFile', selectedPhotoFile.value)
+    }
+
+    formData.append('PhotoTitle', imageFormData.photoTitle)
+    formData.append('PhotoDescription', imageFormData.photoDescription)
+    formData.append('PhotoLocation', imageFormData.photoLocation)
+    formData.append('PhotoSetId', imageFormData.photoSetId)
+    if (imageFormData.photoTags) {
+        formData.append('TagIds', imageFormData.photoTags)
+    }
+
+    let success = false
+    if (isPhotoCreateModalOpen.value) {
+        success = await createPhoto(formData, errorMessage)
+    } else if (isPhotoEditModalOpen.value && editingPhotoId.value) {
+        success = await updatePhoto(editingPhotoId.value, formData)
+    }
+
+    if (success) {
+        closePhotoModal()
+        await refreshPhotos()
+    }
 }
 
-const closePhotoModal = () => {
-    isPhotoCreateModalOpen.value = false
-    isPhotoEditModalOpen.value = false
-    imageFormData.photoTitle = ''
-    imageFormData.photoDescription = ''
-    imageFormData.photoLocation = ''
-    imageFormData.photoTags = []
-    imageFormData.photoSetId = ''
-    if (photoPreviewUrl.value) {
-        URL.revokeObjectURL(photoPreviewUrl.value)
-    }
-    photoPreviewUrl.value = null
-}
+
 
 const openPhotoPicker = () => {
     photoUploadInput.value?.click()
@@ -262,19 +280,60 @@ const handlePhotoFileSelection = (event: Event) => {
         URL.revokeObjectURL(photoPreviewUrl.value)
     }
 
+    selectedPhotoFile.value = file
     photoPreviewUrl.value = URL.createObjectURL(file)
+}
+
+const closeTagModal = () => {
+    isTagCreateModalOpen.value = false
+    isTagEditModalOpen.value = false
+    editingGalleryId.value = null
+    editingGalleryName.value = ''
 }
 
 const closeDeleteModal = () => {
     isDeleteModalOpen.value = false
     deleteModalTargetType.value = 'gallery'
     deleteModalTargetName.value = ''
-    editingGalleryId.value = null
+    deleteModalTargetId.value = ''
 }
 
-const confirmDelete = () => {
-    console.log(`Deleting ${deleteModalTargetType.value}: ${deleteModalTargetName.value}`)
-    closeDeleteModal()
+const closePhotoModal = () => {
+    isPhotoCreateModalOpen.value = false
+    isPhotoEditModalOpen.value = false
+    imageFormData.photoTitle = ''
+    imageFormData.photoDescription = ''
+    imageFormData.photoLocation = ''
+    imageFormData.photoTags = ''
+    imageFormData.photoSetId = ''
+    if (photoPreviewUrl.value) {
+        URL.revokeObjectURL(photoPreviewUrl.value)
+    }
+    photoPreviewUrl.value = null
+    selectedPhotoFile.value = null
+}
+
+const confirmDelete = async () => {
+    try {
+        switch (deleteModalTargetType.value) {
+            case "photo":
+                await deletePhoto(deleteModalTargetId.value, errorMessage)
+                await refreshPhotos()
+                break
+            case "tag":
+                await deleteTag(deleteModalTargetId.value, errorMessage)
+                await refreshTags()
+                break
+            case "gallery":
+                await deleteGallery(deleteModalTargetId.value, errorMessage)
+                await refreshGalleries()
+                break
+        }
+        closeDeleteModal()
+    } catch (error) {
+        console.error("Error Deleting Item")
+        errorMessage.message = "Error deleting."
+    }
 }
 
 </script>
@@ -289,13 +348,12 @@ const confirmDelete = () => {
                 <div class="admin-dashboard-section">
                     <h2 class="admin-dashboard-section-heading">Manage Content</h2>
                     <Suspense>
-                        <Accordion title="Tags" :sub-title="'Create and modify tags for photos'"  :active="activeAccordion === 'tags'"
-                            :set-active="(isOpen) => setAccordionOpen('tags', isOpen)"
-                            :loading="isAccordionLoading"
+                        <Accordion title="Tags" :sub-title="'Create and modify tags for photos'"
+                            :active="activeAccordion === 'tags'"
+                            :set-active="(isOpen) => setAccordionOpen('tags', isOpen)" :loading="isAccordionLoading"
                             loading-label="Loading tags...">
-                            <Tags :error-message="tagsErrorMessage.message" :tags="tags"
-                                @edit-tag-name="openTagEditModal" @delete-tag="openTagDeleteModal"
-                                @create-tag="openTagCreateModal" />
+                            <Tags :error-message="errorMessage.message" :tags="tags" @edit-tag-name="openTagEditModal"
+                                @delete-tag="openTagDeleteModal" @create-tag="openTagCreateModal" />
                         </Accordion>
                         <template #fallback>
                             <div class="accordion-loading-state">
@@ -305,11 +363,11 @@ const confirmDelete = () => {
                         </template>
                     </Suspense>
                     <Suspense>
-                        <Accordion title="Gallerys" :sub-title="'Modify and Create galleries'" :active="activeAccordion === 'photo-set-creations'"
+                        <Accordion title="Gallerys" :sub-title="'Modify and Create galleries'"
+                            :active="activeAccordion === 'photo-set-creations'"
                             :set-active="(isOpen) => setAccordionOpen('photo-set-creations', isOpen)"
-                            :loading="isAccordionLoading"
-                            loading-label="Loading galleries...">
-                            <Gallerys :error-message="photoGalleryErrorMessage.message" :gallerys="gallerys"
+                            :loading="isAccordionLoading" loading-label="Loading galleries...">
+                            <Gallerys :error-message="errorMessage.message" :gallerys="gallerys"
                                 @edit-gallery-name="openGalleryEditModal" @delete-gallery="openGalleryDeleteModal"
                                 @create-gallery="openGalleryCreateModal" />
                         </Accordion>
@@ -321,12 +379,13 @@ const confirmDelete = () => {
                         </template>
                     </Suspense>
                     <Suspense>
-                        <Accordion title="Photo Gallery" :sub-title="'Add and Delete photos from galleries'" :active="activeAccordion === 'photo-gallery'"
+                        <Accordion title="Photo Gallery" :sub-title="'Add and Delete photos from galleries'"
+                            :active="activeAccordion === 'photo-gallery'"
                             :set-active="(isOpen) => setAccordionOpen('photo-gallery', isOpen)"
-                            :loading="isAccordionLoading"
-                            loading-label="Loading photo gallery...">
-                            <PhotoGallery :error-message="photosErrorMessage.message" :galleries="gallerys"
-                                :photos="photos" @create-photo="openPhotoCreateModal" @edit-photo="openPhotoEditModal" />
+                            :loading="isAccordionLoading" loading-label="Loading photo gallery...">
+                            <PhotoGallery :error-message="errorMessage.message" :galleries="gallerys" :photos="photos"
+                                @create-photo="openPhotoCreateModal" @edit-photo="openPhotoEditModal"
+                                @delete-photo="openPhotoDeleteModal" />
                         </Accordion>
                         <template #fallback>
                             <div class="accordion-loading-state">
@@ -335,14 +394,14 @@ const confirmDelete = () => {
                             </div>
                         </template>
                     </Suspense>
-                    
+
                 </div>
             </div>
         </div>
         <div v-if="isGalleryCreateModalOpen" class="modal-backdrop" @click.self="closeGalleryCreateModal">
             <div class="modal-shell" role="dialog" aria-modal="true" aria-label="Create gallery">
                 <h3 class="modal-title">Create Gallery</h3>
-                <p class="modal-error-message">{{ photoGalleryErrorMessage.message }}</p>
+                <p class="modal-error-message">{{ errorMessage.message }}</p>
                 <div class="modal-form">
                     <div class="modal-field">
                         <label class="modal-label" for="gallery-name-input">Gallery name</label>
@@ -353,8 +412,7 @@ const confirmDelete = () => {
                 <div class="modal-actions">
                     <button type="button" class="modal-button secondary"
                         @click="closeGalleryCreateModal">Cancel</button>
-                    <button type="button" class="modal-button primary"
-                        @click="createGallerySubmit">Create</button>
+                    <button type="button" class="modal-button primary" @click="createGallerySubmit">Create</button>
                 </div>
             </div>
         </div>
@@ -369,8 +427,7 @@ const confirmDelete = () => {
                     </div>
                 </div>
                 <div class="modal-actions">
-                    <button type="button" class="modal-button secondary"
-                        @click="closeGalleryEditModal">Cancel</button>
+                    <button type="button" class="modal-button secondary" @click="closeGalleryEditModal">Cancel</button>
                     <button type="button" class="modal-button primary" @click="saveGalleryName">Save</button>
                 </div>
             </div>
@@ -401,9 +458,10 @@ const confirmDelete = () => {
                     </div>
                 </div>
                 <div class="modal-actions">
-                    <button type="button" class="modal-button secondary"
-                        @click="closeTagModal">Cancel</button>
-                    <button type="button" class="modal-button primary" @click="saveTagName">{{ editingGalleryId ? 'Save' : 'Create' }}</button>
+                    <button type="button" class="modal-button secondary" @click="closeTagModal">Cancel</button>
+                    <button type="button" class="modal-button primary" @click="saveTagName">{{ editingGalleryId ? 'Save'
+                        :
+                        'Create' }}</button>
                 </div>
             </div>
         </div>
@@ -413,7 +471,8 @@ const confirmDelete = () => {
                 <h3 class="modal-title">{{ isPhotoCreateModalOpen ? 'Create Photo' : 'Edit Photo' }}</h3>
                 <form class="modal-form" @submit.prevent="createImageModalSubmit">
                     <div v-if="isPhotoCreateModalOpen" class="photo-upload-card" @click="openPhotoPicker">
-                        <input ref="photoUploadInput" class="photo-upload-input" type="file" accept="image/*" @change="handlePhotoFileSelection" />
+                        <input ref="photoUploadInput" class="photo-upload-input" type="file" accept="image/*"
+                            @change="handlePhotoFileSelection" />
                         <div v-if="photoPreviewUrl" class="photo-upload-preview">
                             <img :src="photoPreviewUrl" alt="Selected photo preview" />
                         </div>
@@ -424,15 +483,18 @@ const confirmDelete = () => {
                     </div>
                     <div class="modal-field">
                         <label class="modal-label" for="photo-title-input">Photo title</label>
-                        <input id="photo-title-input" v-model="imageFormData.photoTitle" class="modal-input" type="text" autocomplete="off" />
+                        <input id="photo-title-input" v-model="imageFormData.photoTitle" class="modal-input" type="text"
+                            autocomplete="off" />
                     </div>
                     <div class="modal-field">
                         <label class="modal-label" for="photo-description-input">Description</label>
-                        <textarea id="photo-description-input" v-model="imageFormData.photoDescription" class="modal-textarea" autocomplete="off"></textarea>
+                        <textarea id="photo-description-input" v-model="imageFormData.photoDescription"
+                            class="modal-textarea" autocomplete="off"></textarea>
                     </div>
                     <div class="modal-field">
                         <label class="modal-label" for="photo-location-input">Location</label>
-                        <input id="photo-location-input" v-model="imageFormData.photoLocation" class="modal-input" type="text" autocomplete="off" />
+                        <input id="photo-location-input" v-model="imageFormData.photoLocation" class="modal-input"
+                            type="text" autocomplete="off" />
                     </div>
                     <div class="modal-field">
                         <label class="modal-label" for="photo-tags-input">Tags</label>
@@ -454,7 +516,8 @@ const confirmDelete = () => {
                     </div>
                     <div class="modal-actions">
                         <button type="button" class="modal-button secondary" @click="closePhotoModal">Cancel</button>
-                        <button type="submit" class="modal-button primary">{{ isPhotoEditModalOpen ? 'Save' : 'Create' }}</button>
+                        <button type="submit" class="modal-button primary">{{ isPhotoEditModalOpen ? 'Save' : 'Create'
+                        }}</button>
                     </div>
                 </form>
             </div>

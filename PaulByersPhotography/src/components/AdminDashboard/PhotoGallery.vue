@@ -11,6 +11,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     (event: 'create-photo'): void
     (event: 'edit-photo', photo: PhotographyPhotoInterface): void
+    (event: 'delete-photo', photo: PhotographyPhotoInterface): void
 }>()
 
 console.log('props.galleries:', props.galleries)
@@ -55,7 +56,7 @@ const onCreatePhoto = () => {
             <p class="photo-set-selected">Selected: {{ selectedPhotoSetLabel }}</p>
            
             <div class="photo-set-body">
-                <PhotoGalleryGrid :photos="photos" @create-photo="emit('create-photo')" @edit-photo="(photo) => emit('edit-photo', photo)" />
+                <PhotoGalleryGrid :photos="photos" @create-photo="emit('create-photo')" @edit-photo="(photo) => emit('edit-photo', photo)" @delete-photo="(photo) => emit('delete-photo', photo)" />
             </div>
         </div>
     </div>

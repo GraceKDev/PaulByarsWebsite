@@ -56,3 +56,20 @@ export async function putGallery(photoSetDTO: PhotoSetDTO, photoSetId: string, e
     })
     return response
 }
+
+export async function deleteGallery(photoSetId: string, errorMessage: { message: string }): Promise<boolean> {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/Api/PhotoSet/Delete/${photoSetId}`, {
+        method: "DELETE",
+        headers: { "content-type": "application/json" },
+        credentials: "include",
+    }).then((response) => {
+        if (!response.ok) {
+            errorMessage.message = `${"Error: " + response.status}`;
+            return response.ok;
+        }
+        else {
+            return response.ok;
+        }
+    })
+    return response
+}

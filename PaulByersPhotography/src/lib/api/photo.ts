@@ -1,7 +1,7 @@
 import type { PhotographyPhotoInterface, PhotoDTO } from "../types/PhotographyPhotoInterface";
 
 export async function getAllPhotos(errorMessage: { message: string }): Promise<PhotographyPhotoInterface[]> {
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/Api/Photos/GetAll`, {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/Api/Photo/GetAll`, {
         method: "GET",
         headers: { "content-type": "application/json" },
     });
@@ -21,7 +21,7 @@ export async function getAllPhotos(errorMessage: { message: string }): Promise<P
 }
 
 export async function getPhotosBySet(photoSetId: number, errorMessage: { message: string }): Promise<PhotographyPhotoInterface[]> {
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/Api/Photos/GetBySet/${photoSetId}`, {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/Api/Photo/GetBySet/${photoSetId}`, {
         method: "GET",
         headers: { "content-type": "application/json" },
     });
@@ -41,7 +41,7 @@ export async function getPhotosBySet(photoSetId: number, errorMessage: { message
 }
 
 export async function createPhoto(formData: FormData, errorMessage: { message: string }): Promise<boolean> {
-    return fetch(`${import.meta.env.VITE_BACKEND_URL}/Api/Photos/Create`, {
+    return fetch(`${import.meta.env.VITE_BACKEND_URL}/Api/Photo/Create`, {
         method: "POST",
         credentials: "include",
         body: formData,
@@ -55,7 +55,7 @@ export async function createPhoto(formData: FormData, errorMessage: { message: s
 }
 
 export async function updatePhoto(photoId: string, formData: FormData): Promise<boolean> {
-    return fetch(`${import.meta.env.VITE_BACKEND_URL}/Api/Photos/Update/${photoId}`, {
+    return fetch(`${import.meta.env.VITE_BACKEND_URL}/Api/Photo/Update/${photoId}`, {
         method: "PUT",
         credentials: "include",
         body: formData,
@@ -68,7 +68,7 @@ export async function updatePhoto(photoId: string, formData: FormData): Promise<
 }
 
 export async function deletePhoto(photoId: string, errorMessage: { message: string }): Promise<boolean> {
-    return fetch(`${import.meta.env.VITE_BACKEND_URL}/Api/Photos/Delete/${photoId}`, {
+    return fetch(`${import.meta.env.VITE_BACKEND_URL}/Api/Photo/Delete/${photoId}`, {
         method: "DELETE",
         headers: { "content-type": "application/json" },
         credentials: "include",

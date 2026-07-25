@@ -8,6 +8,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     (event: 'create-photo'): void
     (event: 'edit-photo', photo: PhotographyPhotoInterface): void
+    (event: 'delete-photo', photo: PhotographyPhotoInterface): void
 }>()
 
 const editIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>'
@@ -16,22 +17,10 @@ const deleteIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="1
 const selectedPhoto = ref<PhotographyPhotoInterface | null>(null)
 
 const editMode = ref(true)
-const deleteModal = ref(false)
 const photoModal = ref(false)
 
 const openDeleteModal = (photo: PhotographyPhotoInterface) => {
-    selectedPhoto.value = photo
-    deleteModal.value = true
-}
-
-const closeDeleteModal = () => {
-    deleteModal.value = false
-    selectedPhoto.value = null
-}
-
-const deletePhoto = (photo: PhotographyPhotoInterface) => {
-    console.log("deleting photo:", photo)
-    closeDeleteModal()
+    emit('delete-photo', photo)
 }
 
 const openPhotoModal = (photo: PhotographyPhotoInterface) => {
@@ -59,7 +48,8 @@ const closePhotoModal = () => {
 
                     <div v-if="editMode" class="photo-gallery-actions">
                         <div class="photo-gallery-edit" @click.stop="emit('edit-photo', photo)" v-html="editIcon"></div>
-                        <div class="photo-gallery-delete" @click.stop="openDeleteModal(photo)" v-html="deleteIcon"></div>
+                        <div class="photo-gallery-delete" @click.stop="openDeleteModal(photo)" v-html="deleteIcon">
+                        </div>
                     </div>
                     <img @click="openPhotoModal(photo)" :src="photo.photoUrl" :alt="photo.photoAlt" />
                 </div>
@@ -68,14 +58,6 @@ const closePhotoModal = () => {
         <div v-if="photoModal && selectedPhoto" class="photo-inspect-modal" @click="closePhotoModal">
             <div class="photo-inspect-modal-content" @click.stop>
                 <img :src="selectedPhoto.photoUrl" :alt="selectedPhoto.photoAlt" />
-            </div>
-        </div>
-
-        <div v-if="deleteModal && selectedPhoto" class="photo-inspect-modal" @click="closeDeleteModal">
-            <div class="photo-inspect-modal-content" @click.stop>
-                <p>Are you sure you want to delete "{{ selectedPhoto.photoTitle }}"?</p>
-                <button class="cancel-button" @click="closeDeleteModal">Cancel</button>
-                <button class="delete-button" @click="deletePhoto(selectedPhoto)">Delete</button>
             </div>
         </div>
     </div>
@@ -185,39 +167,14 @@ img {
     height: auto;
 }
 
-.photo-inspect-modal-content p {
-    color: #fff;
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-}
 
-.cancel-button,
-.delete-button {
-    padding: 0.5rem 1rem;
-    margin: 0 0.5rem;
-    border: none;
-    cursor: pointer;
-    font-size: 1rem;
-    border-radius: 0.25rem;
-    transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.cancel-button {
-    background-color: #ccc;
-    color: #000;
-}
-
-.cancel-button:hover {
-    background-color: #bbb;
-}
-
-.delete-button {
-    background-color: #e70000;
-    color: #fff;
-}
-
-.delete-button:hover {
-    background-color: #c60000;
+.add-photo-icon {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+     aspect-ratio: 1 / 1;
 }
 
 .add-photo-text {
