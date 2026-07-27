@@ -1,4 +1,4 @@
-import type { PhotographyPhotoInterface, PhotoDTO } from "../types/PhotographyPhotoInterface";
+import type { PhotographyPhotoInterface} from "../types/PhotographyPhotoInterface";
 
 export async function getAllPhotos(errorMessage: { message: string }): Promise<PhotographyPhotoInterface[]> {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/Api/Photo/GetAll`, {

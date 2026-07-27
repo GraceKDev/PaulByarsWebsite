@@ -22,7 +22,7 @@ const router = createRouter({
 
 
 
-router.beforeEach(async (to, from) => {
+router.beforeEach(async (to) => {
   switch (to.name) {
     case 'admin':
       if (!await checkAuth()) {
