@@ -20,14 +20,38 @@ const gallerys = ref<PhotoSetInterface[]>([]);
 const tags = ref<TagInterface[]>([]);
 const photos = ref<PhotographyPhotoInterface[]>([]);
 const isLoading = ref(true);
-const selectedFilter = ref('');
+const selectedGallery = ref('');
+const selectedTags = ref<string[]>([]);
 
 const galleryOptions = computed(() =>
   gallerys.value.map((g) => ({
     label: g.photoSetTitle,
-    value: g.photoSetTitle,
+    value: g.photoSetId,
   }))
 );
+
+const tagOptions = computed(() =>
+  tags.value.map((t) => ({
+    label: t.tagName,
+    value: t.tagId,
+  }))
+);
+
+const filteredPhotos = computed(() => {
+  let result = photos.value;
+
+  if (selectedGallery.value) {
+    result = result.filter((p) => p.photoSetId === selectedGallery.value);
+  }
+
+  if (selectedTags.value.length > 0) {
+    result = result.filter((p) =>
+      p.photoTags && selectedTags.value.some((tagId) => p.photoTags.includes(tagId))
+    );
+  }
+
+  return result;
+});
 
 const loadItems = async () => {
   isLoading.value = true;
@@ -44,7 +68,6 @@ const loadItems = async () => {
     isLoading.value = false;
   }
 };
-
 </script>
 
 <template>
@@ -57,14 +80,22 @@ const loadItems = async () => {
       </header>
       <div class="gallery-filters">
         <Dropdown
-          id="filter"
-          label="Gallerys"
+          id="gallery-filter"
+          label="Gallery"
           :options="galleryOptions"
-          v-model="selectedFilter"
+          v-model="selectedGallery"
+        />
+        <Dropdown
+          id="tag-filter"
+          label="Tags"
+          :options="tagOptions"
+          v-model="selectedTags"
+          :multiple="true"
+          placeholder="All Tags"
         />
       </div>
       <div class="gallery-items">
-        <PhotoGalleryGrid :editing-enabled=false :photos="photos" />
+        <PhotoGalleryGrid :photos="filteredPhotos" :editing-enabled="false" />
       </div>
     </div>
   </section>
@@ -115,6 +146,11 @@ const loadItems = async () => {
 .gallery-filters {
   display: flex;
   justify-content: flex-end;
+  gap: 2rem;
   margin-bottom: 4.5rem;
+}
+
+.gallery-items {
+  margin-top: 2rem;
 }
 </style>

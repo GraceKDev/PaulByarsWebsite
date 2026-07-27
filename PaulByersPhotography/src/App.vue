@@ -4,12 +4,12 @@ import { useRoute } from 'vue-router'
 
 import SiteHeader from './components/Globals/SiteHeader.vue'
 
-const route = useRoute()
-const showSiteHeader = computed(() => !route.path.startsWith('/admin'))
+
+
 </script>
 
 <template>
-  <SiteHeader v-if="showSiteHeader" />
+  <SiteHeader />
   <main>
     <RouterView />
   </main>

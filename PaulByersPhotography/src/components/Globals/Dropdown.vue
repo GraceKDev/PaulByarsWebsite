@@ -8,29 +8,47 @@ interface DropdownOption {
 
 const props = withDefaults(defineProps<{
   options: DropdownOption[];
-  modelValue?: string;
+  modelValue?: string | string[];
   label?: string;
   id?: string;
   placeholder?: string;
+  multiple?: boolean;
 }>(), {
   modelValue: '',
   label: '',
   id: 'dropdown',
   placeholder: 'All',
+  multiple: false,
 });
 
 const emit = defineEmits<{
-  'update:modelValue': [value: string];
+  'update:modelValue': [value: string | string[]];
 }>();
 
 const isOpen = ref(false);
 const root = ref<HTMLElement | null>(null);
 
-const selectedLabel = computed(
-  () =>
+const selectedValues = computed<string[]>(() => {
+  if (props.multiple) {
+    return Array.isArray(props.modelValue) ? props.modelValue : [];
+  }
+  return typeof props.modelValue === 'string' && props.modelValue ? [props.modelValue] : [];
+});
+
+const selectedLabel = computed(() => {
+  if (props.multiple) {
+    const count = selectedValues.value.length;
+    if (count === 0) return props.placeholder;
+    if (count === 1) {
+      return props.options.find((o) => o.value === selectedValues.value[0])?.label ?? props.placeholder;
+    }
+    return `${count} selected`;
+  }
+  return (
     props.options.find((option) => option.value === props.modelValue)?.label ??
     props.placeholder
-);
+  );
+});
 
 const toggle = () => {
   if (props.options.length === 0) return;
@@ -38,8 +56,26 @@ const toggle = () => {
 };
 
 const select = (value: string) => {
-  emit('update:modelValue', value);
-  isOpen.value = false;
+  if (props.multiple) {
+    const current = Array.isArray(props.modelValue) ? [...props.modelValue] : [];
+    const index = current.indexOf(value);
+    if (index === -1) {
+      current.push(value);
+    } else {
+      current.splice(index, 1);
+    }
+    emit('update:modelValue', current);
+  } else {
+    emit('update:modelValue', value);
+    isOpen.value = false;
+  }
+};
+
+const isSelected = (value: string): boolean => {
+  if (props.multiple) {
+    return selectedValues.value.includes(value);
+  }
+  return props.modelValue === value;
 };
 
 const handleDocumentClick = (event: MouseEvent) => {
@@ -90,16 +126,20 @@ onBeforeUnmount(() => {
           class="dropdown-options"
           role="listbox"
           :aria-label="label || 'Options'"
+          :aria-multiselectable="multiple"
         >
           <li v-for="option in options" :key="option.value">
             <button
               class="dropdown-option"
-              :class="{ 'is-selected': modelValue === option.value }"
+              :class="{ 'is-selected': isSelected(option.value) }"
               type="button"
               role="option"
-              :aria-selected="modelValue === option.value"
+              :aria-selected="isSelected(option.value)"
               @click="select(option.value)"
             >
+              <span v-if="multiple" class="dropdown-option-check" aria-hidden="true">
+                <template v-if="isSelected(option.value)">&#10003;</template>
+              </span>
               {{ option.label }}
             </button>
           </li>
@@ -203,6 +243,9 @@ onBeforeUnmount(() => {
   letter-spacing: 0.04em;
   cursor: pointer;
   transition: background-color 0.18s ease, color 0.18s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .dropdown-option:hover:not(.is-selected),
@@ -216,6 +259,24 @@ onBeforeUnmount(() => {
   background: #e8d9b5;
   color: #0f0f0f;
   font-weight: 600;
+}
+
+.dropdown-option-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 1px solid currentColor;
+  border-radius: 0.25rem;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.is-selected .dropdown-option-check {
+  background: #0f0f0f;
+  border-color: #0f0f0f;
+  color: #e8d9b5;
 }
 
 .dropdown-options-transition-enter-active,

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, Suspense } from 'vue'
+import { computed, onMounted, reactive, ref, Suspense } from 'vue'
 import Accordion from '../components/Globals/Accordion.vue'
+import Dropdown from '../components/Globals/Dropdown.vue'
 import PhotoGallery from '../components/AdminDashboard/PhotoGallery.vue';
 import Gallerys from '../components/AdminDashboard/Gallerys.vue';
 import Tags from '../components/AdminDashboard/Tags.vue';
@@ -23,7 +24,7 @@ const imageFormData = reactive({
     photoTitle: '',
     photoDescription: '',
     photoLocation: '',
-    photoTags: '',
+    photoTags: [] as string[],
     photoSetId: '',
 })
 
@@ -96,6 +97,20 @@ const refreshPhotos = async () => {
         isAccordionLoading.value = false
     }
 }
+
+const galleryDropdownOptions = computed(() =>
+  gallerys.value.map((g) => ({
+    label: g.photoSetTitle,
+    value: g.photoSetId,
+  }))
+);
+
+const tagDropdownOptions = computed(() =>
+  tags.value.map((t) => ({
+    label: t.tagName,
+    value: t.tagId,
+  }))
+);
 
 const openDeleteModal = (targetType: DeleteModalTargetType, itemId: string, itemName: string) => {
     deleteModalTargetType.value = targetType
@@ -207,7 +222,7 @@ const openPhotoCreateModal = () => {
     imageFormData.photoTitle = ''
     imageFormData.photoDescription = ''
     imageFormData.photoLocation = ''
-    imageFormData.photoTags = ''
+    imageFormData.photoTags = []
     imageFormData.photoSetId = ''
     photoPreviewUrl.value = null
     selectedPhotoFile.value = null
@@ -217,8 +232,9 @@ const openPhotoEditModal = (photo: PhotographyPhotoInterface) => {
     editingPhotoId.value = photo.photoId;
     imageFormData.photoTitle = photo.photoTitle;
     imageFormData.photoLocation = photo.photoLocation;
-    imageFormData.photoTags = photo.photoTags?.[0] ?? '';
+    imageFormData.photoTags = photo.photoTags ?? [];
     imageFormData.photoDescription = photo.photoDescription;
+    imageFormData.photoSetId = photo.photoSetId;
     isPhotoEditModalOpen.value = true;
     isPhotoCreateModalOpen.value = false;
     photoPreviewUrl.value = null;
@@ -245,8 +261,8 @@ const createImageModalSubmit = async () => {
     formData.append('PhotoDescription', imageFormData.photoDescription)
     formData.append('PhotoLocation', imageFormData.photoLocation)
     formData.append('PhotoSetId', imageFormData.photoSetId)
-    if (imageFormData.photoTags) {
-        formData.append('TagIds', imageFormData.photoTags)
+    for (const tagId of imageFormData.photoTags) {
+      formData.append('TagIds', tagId)
     }
 
     let success = false
@@ -304,7 +320,7 @@ const closePhotoModal = () => {
     imageFormData.photoTitle = ''
     imageFormData.photoDescription = ''
     imageFormData.photoLocation = ''
-    imageFormData.photoTags = ''
+    imageFormData.photoTags = []
     imageFormData.photoSetId = ''
     if (photoPreviewUrl.value) {
         URL.revokeObjectURL(photoPreviewUrl.value)
@@ -498,21 +514,22 @@ const confirmDelete = async () => {
                     </div>
                     <div class="modal-field">
                         <label class="modal-label" for="photo-tags-input">Tags</label>
-                        <select id="photo-tags-input" v-model="imageFormData.photoTags" class="modal-select">
-                            <option value="">Select a tag</option>
-                            <option v-for="tag in tags" :key="tag.tagId" :value="tag.tagId">
-                                {{ tag.tagName }}
-                            </option>
-                        </select>
+                        <Dropdown
+                          id="photo-tags-input"
+                          :options="tagDropdownOptions"
+                          v-model="imageFormData.photoTags"
+                          :multiple="true"
+                          placeholder="Select tags"
+                        />
                     </div>
                     <div class="modal-field">
                         <label class="modal-label" for="photo-gallery-select">Gallery</label>
-                        <select id="photo-gallery-select" v-model="imageFormData.photoSetId" class="modal-select">
-                            <option value="">Select a gallery</option>
-                            <option v-for="gallery in gallerys" :key="gallery.photoSetId" :value="gallery.photoSetId">
-                                {{ gallery.photoSetTitle }}
-                            </option>
-                        </select>
+                        <Dropdown
+                          id="photo-gallery-select"
+                          :options="galleryDropdownOptions"
+                          v-model="imageFormData.photoSetId"
+                          placeholder="Select a gallery"
+                        />
                     </div>
                     <div class="modal-actions">
                         <button type="button" class="modal-button secondary" @click="closePhotoModal">Cancel</button>

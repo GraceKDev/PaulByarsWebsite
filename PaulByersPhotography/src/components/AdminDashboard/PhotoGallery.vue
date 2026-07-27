@@ -17,23 +17,28 @@ const emit = defineEmits<{
 }>()
 
 console.log('props.galleries:', props.galleries)
-const selectedPhotoSet = ref(props.galleries.length > 0 ? props.galleries[0]?.photoSetTitle : 'Select a photo set')
+const selectedPhotoSet = ref(props.galleries.length > 0 ? props.galleries[0]?.photoSetId : '')
 
 const galleryOptions = computed(() =>
   props.galleries.map((g) => ({
     label: g.photoSetTitle,
-    value: g.photoSetTitle,
+    value: g.photoSetId,
   }))
 );
 
 const selectedPhotoSetLabel = computed(() => {
-    const gallery = props.galleries.find(g => g?.photoSetTitle === selectedPhotoSet.value)
+    const gallery = props.galleries.find(g => g?.photoSetId === selectedPhotoSet.value)
     if (gallery) {
         return gallery.photoSetTitle
     }
 
     return 'Select a photo set'
 })
+
+const filteredPhotos = computed(() => {
+  if (!selectedPhotoSet.value) return props.photos;
+  return props.photos.filter((p) => p.photoSetId === selectedPhotoSet.value);
+});
 
 
 
@@ -54,7 +59,7 @@ const selectedPhotoSetLabel = computed(() => {
             </div>
             <p class="photo-set-selected">Selected: {{ selectedPhotoSetLabel }}</p>
             <div class="photo-set-body">
-                <PhotoGalleryGrid :photos="photos" :editing-enabled="props.editingEnabled" @create-photo="emit('create-photo')"
+                <PhotoGalleryGrid :photos="filteredPhotos" :editing-enabled="props.editingEnabled" @create-photo="emit('create-photo')"
                     @edit-photo="(photo) => emit('edit-photo', photo)"
                     @delete-photo="(photo) => emit('delete-photo', photo)" />
             </div>
