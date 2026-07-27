@@ -1,3 +1,13 @@
+
+<script lang="ts">
+import { defineBasicLoader } from 'vue-router/experimental'
+import { getUserById } from '../api'
+
+export const useUserData = defineBasicLoader('/users/[id]', async to => {
+  return getUserById(to.params.id)
+})
+</script>
+
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue';
 
