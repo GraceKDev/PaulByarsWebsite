@@ -18,7 +18,7 @@ const handleSubmit = () => {
         ].join('\n'),
     );
 
-    window.location.href = `mailto:routepokemon@gmail.com?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:PaulByars3@gmail.com?subject=${subject}&body=${body}`;
 };
 </script>
 <template>
@@ -27,10 +27,12 @@ const handleSubmit = () => {
             <header class="section-header">
                 <p class="section-eyebrow">Contact</p>
                 <h2 class="section-heading">Get in touch</h2>
+                
                 <div class="section-divider"></div>
             </header>
             <div class="contact-me-content">
                 <div class="contact-me-form-shell">
+                    <p class="contact-me-email"> Sending email to PaulByars3@gmail.com </p>
                     <form class="contact-me-form" @submit.prevent="handleSubmit">
                         <label aria-label="Name" for="name">Name</label>
                         <input v-model="contactForm.name" type="text" id="name" name="name" autocomplete="name" required />
@@ -67,6 +69,9 @@ const handleSubmit = () => {
     flex-direction: column;
     max-width: 1400px;
     margin: 0 auto;
+}
+.contact-me-email {
+    color:white;
 }
 .section-header {
     margin-bottom: 4.5rem;
