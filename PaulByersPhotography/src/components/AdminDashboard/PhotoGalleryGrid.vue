@@ -50,7 +50,7 @@ const closePhotoModal = () => {
                         <div class="photo-gallery-delete" @click.stop="openDeleteModal(photo)" v-html="deleteIcon">
                         </div>
                     </div>
-                    <img @click="openPhotoModal(photo)" :src="photo.photoUrl" :alt="photo.photoAlt" />
+                    <img @click="openPhotoModal(photo)" :src="photo.photoUrl" :alt="photo.photoAlt" loading="lazy" />
                 </div>
             </div>
         </div>
@@ -68,7 +68,7 @@ const closePhotoModal = () => {
     gap: 1rem;
 }
 
-img {
+.photo-gallery-item-overlay img {
     width: 100%;
     height: auto;
     object-fit: cover;

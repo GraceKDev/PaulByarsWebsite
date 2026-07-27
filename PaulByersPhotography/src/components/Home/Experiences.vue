@@ -7,45 +7,44 @@ const experiences: ServiceCardInterface[] = [
         title: 'Sporting Events',
         description: 'Covering Pines football club with a range of photos for all their players including headshots and in game photos as well as Worked at a variety of games across the league including Celtic and Rangers games and had the opportunity from St Mirren football club to work in a club environment covering training sessions and in game action.',
         images: [
-            '/ImagesHero/Photo 3-4-2026, 21 06 11 (11).jpg',
-            '/ImagesHero/Photo 3-4-2026, 21 06 11 (10).jpg',
-            '/ImagesHero/Photo 3-4-2026, 21 06 11 (9).jpg'
+            'https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+2-11-2025%2C+14+32+03.jpg',
+            'https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+7-10-2024%2C+19+56+23.jpg',
+            'https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+2-11-2025%2C+16+27+06.jpg'
         ]
     },
     {
         title: 'Concerts and Performances',
         description: 'I had the opportunity to work at the connect festival covering a range of artists and also working with Platinum selling artist Paolo Nutini covering his gigs in Italy and Ireland.',
         images: [
-            '/ImagesHero/Photo 20-8-2025, 21 06 41.jpg',
-            '/ImagesHero/Photo 20-8-2025, 20 16 19.jpg',
-            '/ImagesHero/Photo 20-8-2025, 19 36 24.jpg'
+            'https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+20-7-2022%2C+22+31+11.jpg',
+            'https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+20-7-2022%2C+22+04+07.jpg',
+            'https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+20-7-2022%2C+22+20+54.jpg'
         ]
     },
     {
         title: 'Travel Photography',
         description: "I've had the opportunity to take images from 57 countries across the world while exploring the different cultures and landscapes.",
         images: [
-            '/ImagesHero/Photo 28-3-2026, 08 29 54.jpg',
-            '/ImagesHero/Photo 28-3-2026, 07 59 19.jpg',
-            '/ImagesHero/Photo 28-3-2026, 07 38 48.jpg'
+            'https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+12-1-2024%2C+18+07+13.jpg',
+            'https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+16-11-2018%2C+20+30+09.jpg',
+            'https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+22-7-2020%2C+19+16+46.jpg'
         ]
     },
     {
         title: 'Street Photography',
         description: 'I have captured various people in street photography capturing fast paced people in the moment including black and white photos.',
         images: [
-            '/ImagesHero/Photo 25-1-2026, 22 29 07.jpg',
-            '/ImagesHero/Photo 25-1-2026, 19 37 48.jpg',
-            '/ImagesHero/Photo 24-1-2026, 23 25 49.jpg'
+            'https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+10-1-2026%2C+07+37+21.jpg',
+            'https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+12-1-2026%2C+09+37+23.jpg',
+            'https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+16-12-2025%2C+20+15+32.jpg'
         ]
     },
     {
         title: 'Drone Work',
         description: 'Taking photos from a unique angle above the ground and giving a different perspective on photography.',
         images: [
-            '/ImagesHero/Photo 15-8-2025, 19 25 51.jpg',
-            '/ImagesHero/Photo 13-9-2025, 15 39 16.jpg',
-            '/ImagesHero/Photo 3-8-2025, 17 00 03.jpg'
+            'https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+10-2-2026%2C+19+03+59.png',
+            'https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+24-1-2026%2C+23+25+49.jpg',
         ]
     }
 ]
@@ -64,7 +63,10 @@ const experiences: ServiceCardInterface[] = [
                 :key="index" 
                 :title="experience.title"
                 :description="experience.description" 
-                :images="experience.images" />
+                :images="experience.images"
+                loading="lazy"
+                alt="services"
+                />
             </div>
         </div>
     </section>

@@ -11,7 +11,7 @@ const props = defineProps<{
 <template>
     <article class="reference-card">
         <div class="reference-logo-container">
-            <img :src="logo" :alt="company" class="reference-logo" />
+            <img :src="logo"  loading="lazy"  alt="reviewer image"  class="reference-logo" />
         </div>
         <div class="reference-content">
             <blockquote class="reference-quote">{{ quote }}</blockquote>
@@ -79,8 +79,8 @@ const props = defineProps<{
 .reference-logo {
     width: 56px;
     height: 56px;
-    object-fit: contain;
-    filter: brightness(0) invert(1);
+    object-fit: cover;
+    border-radius: 50%;
     opacity: 0.85;
 }
 

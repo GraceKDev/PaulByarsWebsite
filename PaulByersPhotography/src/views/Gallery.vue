@@ -1,12 +1,5 @@
 
-<script lang="ts">
-import { defineBasicLoader } from 'vue-router/experimental'
-import { getUserById } from '../api'
 
-export const useUserData = defineBasicLoader('/users/[id]', async to => {
-  return getUserById(to.params.id)
-})
-</script>
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue';
@@ -104,7 +97,11 @@ const loadItems = async () => {
           placeholder="All Tags"
         />
       </div>
-      <div class="gallery-items">
+      <div v-if="isLoading" class="gallery-loading" role="status" aria-live="polite">
+        <div class="gallery-spinner" aria-hidden="true"></div>
+        <span>Loading gallery...</span>
+      </div>
+      <div v-else class="gallery-items">
         <PhotoGalleryGrid :photos="filteredPhotos" :editing-enabled="false" />
       </div>
     </div>
@@ -162,5 +159,30 @@ const loadItems = async () => {
 
 .gallery-items {
   margin-top: 2rem;
+}
+
+.gallery-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 4rem 0;
+  color: #e8d9b5;
+  font-size: 1rem;
+}
+
+.gallery-spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid rgba(232, 217, 181, 0.25);
+  border-top-color: #e8d9b5;
+  border-radius: 50%;
+  animation: gallery-spin 0.8s linear infinite;
+}
+
+@keyframes gallery-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

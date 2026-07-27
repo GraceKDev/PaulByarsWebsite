@@ -1,9 +1,24 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 
-const allPhotos = Object.keys(
-  import.meta.glob('/public/ImagesHero/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}')
-).map(p => p.replace('/public', ''))
+const allPhotos = [
+  "https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+10-1-2026%2C+07+37+21.jpg",
+  "https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+10-2-2026%2C+19+03+59.png",
+  "https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+12-1-2024%2C+18+07+13.jpg",
+  "https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+12-1-2026%2C+09+37+23.jpg",
+  "https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+12-11-2024%2C+18+47+21.jpg",
+  "https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+16-11-2018%2C+20+30+09.jpg",
+  "https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+16-11-2018%2C+22+00+22.jpg",
+  "https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+16-11-2022%2C+20+53+30.jpg",
+  "https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+16-11-2022%2C+20+15+32.jpg",
+  "https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+16-12-2025%2C+20+24+47.jpg",
+  "https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+18-1-2026%2C+22+20+06.jpg",
+  "https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+18-1-2026%2C+22+20+06.jpg",
+  "https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+18-11-2025%2C+22+02+00.jpg",
+  "https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+19-11-2022%2C+11+32+02.jpg",
+  "https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+2-11-2025%2C+14+32+03.jpg",
+  "https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/Photo+2-11-2025%2C+16+27+06.jpg"
+]
 
 const currentIndex = ref(0)
 let intervalId: ReturnType<typeof setInterval> | null = null
@@ -156,7 +171,7 @@ onUnmounted(() => {
 }
 
 .caption {
-  font-size: clamp(0.7rem, 1.2vw, 0.85rem);
+  font-size: clamp(1.4rem, 1.8vw, 1.2rem);
   letter-spacing: 0.38em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.4);

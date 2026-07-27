@@ -37,6 +37,7 @@ const gallerys = ref<PhotoSetInterface[]>([])
 const tags = ref<TagInterface[]>([])
 const photos = ref<PhotographyPhotoInterface[]>([])
 const isAccordionLoading = ref(true)
+const isActionLoading = ref(false)
 
 
 onMounted(async () => {
@@ -158,11 +159,16 @@ const saveGalleryName = async () => {
         return
     }
 
-    const response = await putGallery({ photoSetTitle: trimmedName }, editingGalleryId.value, errorMessage)
+    isActionLoading.value = true
+    try {
+        const response = await putGallery({ photoSetTitle: trimmedName }, editingGalleryId.value, errorMessage)
 
-    if (response) {
-        await refreshGalleries()
-        closeGalleryEditModal()
+        if (response) {
+            await refreshGalleries()
+            closeGalleryEditModal()
+        }
+    } finally {
+        isActionLoading.value = false
     }
 }
 
@@ -171,13 +177,18 @@ const createGallerySubmit = async () => {
     if (!trimmedName) {
         return
     }
-    const response = await createGallery({ photoSetTitle: trimmedName }, errorMessage)
-    if (response) {
-        await refreshGalleries()
-        closeGalleryCreateModal()
-    }
-    else {
-        console.error('Failed to create gallery:', errorMessage.message)
+    isActionLoading.value = true
+    try {
+        const response = await createGallery({ photoSetTitle: trimmedName }, errorMessage)
+        if (response) {
+            await refreshGalleries()
+            closeGalleryCreateModal()
+        }
+        else {
+            console.error('Failed to create gallery:', errorMessage.message)
+        }
+    } finally {
+        isActionLoading.value = false
     }
 }
 
@@ -206,13 +217,18 @@ const saveTagName = async () => {
         return
     }
 
-    const response = editingGalleryId.value
-        ? await putTag({ tagName: trimmedName }, editingGalleryId.value, errorMessage)
-        : await createTag({ tagName: trimmedName }, errorMessage)
+    isActionLoading.value = true
+    try {
+        const response = editingGalleryId.value
+            ? await putTag({ tagName: trimmedName }, editingGalleryId.value, errorMessage)
+            : await createTag({ tagName: trimmedName }, errorMessage)
 
-    if (response) {
-        await refreshTags()
-        closeTagModal()
+        if (response) {
+            await refreshTags()
+            closeTagModal()
+        }
+    } finally {
+        isActionLoading.value = false
     }
 }
 
@@ -265,16 +281,21 @@ const createImageModalSubmit = async () => {
       formData.append('TagIds', tagId)
     }
 
-    let success = false
-    if (isPhotoCreateModalOpen.value) {
-        success = await createPhoto(formData, errorMessage)
-    } else if (isPhotoEditModalOpen.value && editingPhotoId.value) {
-        success = await updatePhoto(editingPhotoId.value, formData)
-    }
+    isActionLoading.value = true
+    try {
+        let success = false
+        if (isPhotoCreateModalOpen.value) {
+            success = await createPhoto(formData, errorMessage)
+        } else if (isPhotoEditModalOpen.value && editingPhotoId.value) {
+            success = await updatePhoto(editingPhotoId.value, formData)
+        }
 
-    if (success) {
-        closePhotoModal()
-        await refreshPhotos()
+        if (success) {
+            closePhotoModal()
+            await refreshPhotos()
+        }
+    } finally {
+        isActionLoading.value = false
     }
 }
 
@@ -330,6 +351,7 @@ const closePhotoModal = () => {
 }
 
 const confirmDelete = async () => {
+    isActionLoading.value = true
     try {
         switch (deleteModalTargetType.value) {
             case "photo":
@@ -349,6 +371,8 @@ const confirmDelete = async () => {
     } catch (error) {
         console.error("Error Deleting Item")
         errorMessage.message = "Error deleting."
+    } finally {
+        isActionLoading.value = false
     }
 }
 
@@ -426,9 +450,12 @@ const confirmDelete = async () => {
                     </div>
                 </div>
                 <div class="modal-actions">
-                    <button type="button" class="modal-button secondary"
+                    <button type="button" class="modal-button secondary" :disabled="isActionLoading"
                         @click="closeGalleryCreateModal">Cancel</button>
-                    <button type="button" class="modal-button primary" @click="createGallerySubmit">Create</button>
+                    <button type="button" class="modal-button primary" :disabled="isActionLoading" @click="createGallerySubmit">
+                        <span v-if="isActionLoading" class="btn-spinner" aria-hidden="true"></span>
+                        <span v-else>Create</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -443,8 +470,11 @@ const confirmDelete = async () => {
                     </div>
                 </div>
                 <div class="modal-actions">
-                    <button type="button" class="modal-button secondary" @click="closeGalleryEditModal">Cancel</button>
-                    <button type="button" class="modal-button primary" @click="saveGalleryName">Save</button>
+                    <button type="button" class="modal-button secondary" :disabled="isActionLoading" @click="closeGalleryEditModal">Cancel</button>
+                    <button type="button" class="modal-button primary" :disabled="isActionLoading" @click="saveGalleryName">
+                        <span v-if="isActionLoading" class="btn-spinner" aria-hidden="true"></span>
+                        <span v-else>Save</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -457,8 +487,11 @@ const confirmDelete = async () => {
                     This action cannot be undone.
                 </p>
                 <div class="modal-actions">
-                    <button type="button" class="modal-button secondary" @click="closeDeleteModal">Cancel</button>
-                    <button type="button" class="modal-button primary" @click="confirmDelete">Delete</button>
+                    <button type="button" class="modal-button secondary" :disabled="isActionLoading" @click="closeDeleteModal">Cancel</button>
+                    <button type="button" class="modal-button primary" :disabled="isActionLoading" @click="confirmDelete">
+                        <span v-if="isActionLoading" class="btn-spinner" aria-hidden="true"></span>
+                        <span v-else>Delete</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -474,10 +507,11 @@ const confirmDelete = async () => {
                     </div>
                 </div>
                 <div class="modal-actions">
-                    <button type="button" class="modal-button secondary" @click="closeTagModal">Cancel</button>
-                    <button type="button" class="modal-button primary" @click="saveTagName">{{ editingGalleryId ? 'Save'
-                        :
-                        'Create' }}</button>
+                    <button type="button" class="modal-button secondary" :disabled="isActionLoading" @click="closeTagModal">Cancel</button>
+                    <button type="button" class="modal-button primary" :disabled="isActionLoading" @click="saveTagName">
+                        <span v-if="isActionLoading" class="btn-spinner" aria-hidden="true"></span>
+                        <span v-else>{{ editingGalleryId ? 'Save' : 'Create' }}</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -532,9 +566,11 @@ const confirmDelete = async () => {
                         />
                     </div>
                     <div class="modal-actions">
-                        <button type="button" class="modal-button secondary" @click="closePhotoModal">Cancel</button>
-                        <button type="submit" class="modal-button primary">{{ isPhotoEditModalOpen ? 'Save' : 'Create'
-                        }}</button>
+                        <button type="button" class="modal-button secondary" :disabled="isActionLoading" @click="closePhotoModal">Cancel</button>
+                        <button type="submit" class="modal-button primary" :disabled="isActionLoading">
+                            <span v-if="isActionLoading" class="btn-spinner" aria-hidden="true"></span>
+                            <span v-else>{{ isPhotoEditModalOpen ? 'Save' : 'Create' }}</span>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -796,5 +832,21 @@ const confirmDelete = async () => {
     to {
         transform: rotate(360deg);
     }
+}
+
+.btn-spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(15, 15, 15, 0.25);
+    border-top-color: #0f0f0f;
+    border-radius: 50%;
+    animation: accordion-spin 0.8s linear infinite;
+    vertical-align: middle;
+}
+
+.modal-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 </style>

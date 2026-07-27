@@ -4,16 +4,16 @@ import type { ReferenceInterface } from '../../lib/types/ReferenceInterface';
 
 const references: ReferenceInterface[] = [
     {
-        author: 'John Smith',
-        company: 'ABC Photography',
-        quote: 'Paul is an exceptional photographer. His attention to detail and creativity is unmatched.',
-        image: '/logos/abc-photography.png'
+        author: 'Jon Harris',
+        company: 'Alamy',
+        quote: 'Paul is a pleasure to work with. An Excellant photographer and a top professional.',
+        image: 'https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/1583240354995.jpg'
     },
     {
-        author: 'Jane Doe',
-        company: 'XYZ Photography',
-        quote: 'Paul is a talented photographer. His work is always creative and professional.',
-        image: '/logos/xyz-photography.png'
+        author: 'Lewis Mcleod',
+        company: 'snsgroup',
+        quote: 'Paul was a pleasure to work with, his approach to sports photography is amazing. He always wanted to be well briefed ahead of matches/jobs he covevered for us at SNS Group, and his execution of the insutrctions put forward to him were at the standard of a well-experienced photographer.',
+        image: 'https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/1723575262931.jpg'
     }
 ]
 const companies: { src: string; name: string }[] = [

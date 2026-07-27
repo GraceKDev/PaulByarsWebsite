@@ -15,7 +15,7 @@ const AboutMeText = "Hi, I’m Paul — a 35 year old photographer with over nin
                     {{ AboutMeText }}
                 </p>
                 <div class="about-me-image">
-                    <img src="/ImagesHero/Photo 3-4-2026, 21 06 11 (11).jpg" alt="Paul Byers Photography" />
+                    <img loading="lazy"  alt="my profile" src="https://paulbyers-544885083248-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/Site/758b3e18-dde1-4497-bf15-da784d43ea78.jpg"  />
                 </div>
 
             </div>
@@ -70,12 +70,11 @@ const AboutMeText = "Hi, I’m Paul — a 35 year old photographer with over nin
 
 .about-me-content {
     display: flex;
-    
     gap: 2rem;
     margin-top: 4.5rem;
 }
 .about-me-text {
-    flex-basis: 60%;
+     flex-basis: 60%;
     max-width: 1200px;
     margin: 0 auto;
     font-size: clamp(1rem, 2.5vw, 1.125rem);
@@ -94,5 +93,16 @@ const AboutMeText = "Hi, I’m Paul — a 35 year old photographer with over nin
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+@media (max-width: 768px) {
+    .about-me-content {
+        flex-direction: column;
+    }
+
+    .about-me-image {
+        flex-basis: 100%;
+        width: 100%;
+    }
 }
 </style>
