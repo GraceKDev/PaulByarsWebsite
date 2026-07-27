@@ -3,22 +3,12 @@ import SocialCard from '../Cards/SocialCard.vue'
 const socials = [
     {
         name: 'Instagram',
-        url: 'https://www.instagram.com/paulbyersphotography/',
+        url: 'https://www.instagram.com/paulbyarsphotography/',
         icon: '/icons/instagram.svg'
     },
     {
-        name: 'X/Twitter',
-        url: 'https://x.com/paulbyersphoto',
-        icon: '/icons/xTwitter.svg'
-    },
-    {
-        name: 'Flickr',
-        url: 'https://www.flickr.com/photos/paulbyersphotography/',
-        icon: '/icons/flickr.svg'
-    },
-    {
         name: 'Email Me',
-        url: "mailto:PaulByers3@gmail.com",
+        url: "mailto:PaulByars3@gmail.com",
         icon: '/icons/mail.svg'
     }
 ]

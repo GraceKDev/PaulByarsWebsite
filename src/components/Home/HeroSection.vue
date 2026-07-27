@@ -59,7 +59,7 @@ onUnmounted(() => {
       
       <h1 class="name">
         <span class="name-filled">Paul</span>
-        <span class="name-outline">Byers</span>
+        <span class="name-outline">Byars</span>
       </h1>
       <div class="divider"></div>
       <p class="caption">Photography</p>
