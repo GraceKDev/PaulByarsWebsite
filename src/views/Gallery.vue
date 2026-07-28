@@ -185,4 +185,12 @@ const loadItems = async () => {
     transform: rotate(360deg);
   }
 }
+
+@media (max-width: 900px) {
+  .gallery-filters {
+    flex-direction: column;
+    align-items:end;
+    gap:0.5em;
+  }
+}
 </style>

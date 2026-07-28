@@ -28,24 +28,13 @@ const closeMenu = () => {
 <template>
   <header class="site-header">
     <nav class="nav" aria-label="Main navigation">
-      <RouterLink
-        v-for="(route, index) in routes"
-        :key="index"
-        :to="route.to"
-        class="nav-link"
-        @click="closeMenu"
-      >
+      <RouterLink v-for="(route, index) in routes" :key="index" :to="route.to" class="nav-link" @click="closeMenu">
         {{ route.name }}
       </RouterLink>
     </nav>
 
-    <button
-      class="burger"
-      :class="{ 'burger--open': isMenuOpen }"
-      @click="toggleMenu"
-      aria-label="Toggle navigation"
-      aria-expanded="false"
-    >
+    <button class="burger" :class="{ 'burger--open': isMenuOpen }" @click="toggleMenu" aria-label="Toggle navigation"
+      aria-expanded="false">
       <span class="burger-bar"></span>
       <span class="burger-bar"></span>
       <span class="burger-bar"></span>
@@ -54,17 +43,16 @@ const closeMenu = () => {
 
   <Transition name="mobile-slide">
     <aside v-if="isMenuOpen" class="mobile-drawer">
-      <div class="close" v-on:click="closeMenu"> 
-
+      <div class="close" v-on:click="closeMenu">
+        <svg xmlns="http://w3.org" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
       </div>
       <nav class="mobile-nav" aria-label="Mobile navigation">
-        <RouterLink
-          v-for="(route, index) in routes"
-          :key="index"
-          :to="route.to"
-          class="mobile-nav-link"
-          @click="closeMenu"
-        >
+        <RouterLink v-for="(route, index) in routes" :key="index" :to="route.to" class="mobile-nav-link"
+          @click="closeMenu">
           {{ route.name }}
         </RouterLink>
       </nav>
@@ -87,14 +75,17 @@ const closeMenu = () => {
 }
 
 .close {
-  position:absolute;
-  top:0;
-  right:0;
-  background-color: red;
-  width:2rem;
-  height:2rem;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-right: 10%;
+  margin-top: 3%;
+  color:#e8d9b5;
+  width: 2rem;
+  height: 2rem;
   cursor: pointer;
 }
+
 .nav {
   display: flex;
   gap: 2.5rem;

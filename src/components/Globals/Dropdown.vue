@@ -162,14 +162,14 @@ onBeforeUnmount(() => {
 
 .dropdown-label {
   color: #ffffff;
-  font-size: 1rem;
+  font-size: clamp(0.5rem,1rem,0.75rem);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .dropdown-field {
   position: relative;
-  min-width: 18rem;
+  width: clamp(12rem,18rem,12rem);
 }
 
 .dropdown-trigger {
